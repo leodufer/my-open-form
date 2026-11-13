@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { FormBuilder } from '@/components/form-builder/form-builder'
-import { Form, ReusableQuestion } from '@/lib/database.types'
+import { Form, QuestionSegment, ReusableQuestion } from '@/lib/database.types'
 import { getUserCollections } from '@/lib/collections'
 
 export const dynamic = 'force-dynamic'
@@ -19,23 +19,30 @@ export default async function EditFormPage({ params }: EditFormPageProps) {
     redirect('/login')
   }
 
-  const [{ data, error }, { collections }, { data: reusableData }] = await Promise.all([
-    supabase
-      .from('forms')
-      .select('*')
-      .eq('id', id)
-      .eq('user_id', user.id)
-      .single(),
-    getUserCollections(supabase, user.id),
-    supabase
-      .from('reusable_questions')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false }),
-  ])
+  const [{ data, error }, { collections }, { data: reusableData }, { data: segmentsData }] =
+    await Promise.all([
+      supabase
+        .from('forms')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single(),
+      getUserCollections(supabase, user.id),
+      supabase
+        .from('reusable_questions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('question_segments')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false }),
+    ])
 
   const form = data as Form | null
   const reusableQuestions = (reusableData as ReusableQuestion[] | null) ?? []
+  const questionSegments = (segmentsData as QuestionSegment[] | null) ?? []
 
   if (error || !form) {
     notFound()
@@ -46,6 +53,7 @@ export default async function EditFormPage({ params }: EditFormPageProps) {
       form={form}
       collections={collections}
       reusableQuestions={reusableQuestions}
+      questionSegments={questionSegments}
     />
   )
 }

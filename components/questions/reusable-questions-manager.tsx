@@ -39,21 +39,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { toast } from 'sonner'
 import {
   Bookmark,
-  Download,
-  ExternalLink,
   FileText,
-  Folder,
   Loader2,
   MessageSquare,
   Pencil,
@@ -113,13 +102,6 @@ export function ReusableQuestionsManager({
   // Delete confirmation state
   const [deleteTarget, setDeleteTarget] = useState<ReusableQuestion | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-
-  // Responses modal state
-  const [activeResponsesQuestion, setActiveResponsesQuestion] = useState<ReusableQuestion | null>(
-    null
-  )
-  const [formFilterId, setFormFilterId] = useState<string>('all')
-  const [responseSearch, setResponseSearch] = useState('')
 
   const collectionMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -302,60 +284,6 @@ export function ReusableQuestionsManager({
     setIsDeleting(false)
   }
 
-  const activeUsage = activeResponsesQuestion
-    ? usageAndResponsesByReusableId.get(activeResponsesQuestion.id)
-    : undefined
-
-  const filteredResponseRows = useMemo(() => {
-    if (!activeUsage) return []
-    return activeUsage.rows.filter((row) => {
-      if (formFilterId !== 'all' && row.formId !== formFilterId) return false
-      if (responseSearch.trim()) {
-        const q = responseSearch.toLowerCase()
-        return (
-          row.formattedAnswer.toLowerCase().includes(q) ||
-          row.formTitle.toLowerCase().includes(q) ||
-          row.collectionName.toLowerCase().includes(q)
-        )
-      }
-      return true
-    })
-  }, [activeUsage, formFilterId, responseSearch])
-
-  const exportConsolidatedCsv = () => {
-    if (!activeResponsesQuestion || filteredResponseRows.length === 0) {
-      toast.error('No hay respuestas para exportar')
-      return
-    }
-    const escapeCell = (val: string) => `"${val.replace(/"/g, '""')}"`
-    const headers = ['Formulario', 'Colección', 'Respuesta', 'Fecha']
-    const csvRows = [
-      headers.map(escapeCell).join(','),
-      ...filteredResponseRows.map((row) =>
-        [
-          row.formTitle,
-          row.collectionName,
-          row.formattedAnswer,
-          formatDate(row.submittedAt),
-        ]
-          .map(escapeCell)
-          .join(',')
-      ),
-    ]
-    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    const safeTitle = activeResponsesQuestion.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/gi, '-')
-      .slice(0, 40)
-    link.download = `respuestas-${safeTitle || 'pregunta'}.csv`
-    link.click()
-    URL.revokeObjectURL(url)
-    toast.success('CSV exportado correctamente')
-  }
-
   return (
     <div>
       {/* Header */}
@@ -491,16 +419,10 @@ export function ReusableQuestionsManager({
                       <MessageSquare className="w-4 h-4 text-slate-400" />
                       {totalResponses} {totalResponses === 1 ? 'respuesta' : 'respuestas'}
                     </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setActiveResponsesQuestion(rq)
-                        setFormFilterId('all')
-                        setResponseSearch('')
-                      }}
-                    >
-                      Ver respuestas ({totalResponses})
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/questions/${rq.id}/responses`}>
+                        Ver respuestas ({totalResponses})
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -585,107 +507,6 @@ export function ReusableQuestionsManager({
               {isDeleting ? 'Eliminando...' : 'Eliminar'}
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Consolidated Responses Dialog */}
-      <Dialog
-        open={!!activeResponsesQuestion}
-        onOpenChange={(open) => !open && setActiveResponsesQuestion(null)}
-      >
-        <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Bookmark className="w-5 h-5 text-blue-600" />
-              Respuestas: {activeResponsesQuestion?.title}
-            </DialogTitle>
-            <DialogDescription>
-              Todas las respuestas recolectadas para esta pregunta, identificando el formulario de origen.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between py-2">
-            <div className="flex flex-col sm:flex-row gap-2 flex-1">
-              <div className="relative flex-1 max-w-xs">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <Input
-                  value={responseSearch}
-                  onChange={(e) => setResponseSearch(e.target.value)}
-                  placeholder="Buscar respuesta o formulario..."
-                  className="pl-9"
-                />
-              </div>
-              <Select value={formFilterId} onValueChange={setFormFilterId}>
-                <SelectTrigger className="w-full sm:w-64">
-                  <SelectValue placeholder="Filtrar por formulario" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    Todos los formularios ({activeUsage?.forms.length || 0})
-                  </SelectItem>
-                  {(activeUsage?.forms || []).map((f) => (
-                    <SelectItem key={f.id} value={f.id}>
-                      {f.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={exportConsolidatedCsv}
-              disabled={filteredResponseRows.length === 0}
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Exportar CSV
-            </Button>
-          </div>
-
-          <div className="flex-1 overflow-auto border rounded-lg">
-            {filteredResponseRows.length === 0 ? (
-              <div className="py-12 text-center text-slate-500 text-sm">
-                No hay respuestas registradas para esta pregunta con los filtros actuales.
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Formulario de origen</TableHead>
-                    <TableHead>Respuesta</TableHead>
-                    <TableHead className="w-44">Fecha</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredResponseRows.map((row) => (
-                    <TableRow key={`${row.responseId}-${row.formId}`}>
-                      <TableCell>
-                        <div className="flex flex-col gap-1">
-                          <Link
-                            href={`/forms/${row.formId}/responses`}
-                            className="font-medium text-blue-600 hover:underline inline-flex items-center gap-1"
-                          >
-                            {row.formTitle}
-                            <ExternalLink className="w-3 h-3" />
-                          </Link>
-                          <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                            <Folder className="w-3 h-3" />
-                            {row.collectionName}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="max-w-md whitespace-pre-wrap break-words text-slate-900">
-                        {row.formattedAnswer}
-                      </TableCell>
-                      <TableCell className="text-xs text-slate-500 whitespace-nowrap">
-                        {formatDate(row.submittedAt)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </div>
         </DialogContent>
       </Dialog>
     </div>

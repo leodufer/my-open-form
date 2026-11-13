@@ -49,6 +49,8 @@ export interface ThemeConfig {
 export interface QuestionConfig {
   id: string
   reusableQuestionId?: string
+  segmentId?: string
+  segmentQuestionId?: string
   type: QuestionType
   title: string
   description?: string
@@ -144,6 +146,32 @@ export interface Database {
           updated_at?: string
         }
       }
+      question_segments: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          description: string | null
+          questions: QuestionConfig[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          description?: string | null
+          questions?: QuestionConfig[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          name?: string
+          description?: string | null
+          questions?: QuestionConfig[]
+          updated_at?: string
+        }
+      }
       forms: {
         Row: {
           id: string
@@ -215,6 +243,9 @@ export type Collection = Database['public']['Tables']['collections']['Row']
 export type ReusableQuestion = Database['public']['Tables']['reusable_questions']['Row']
 export type ReusableQuestionInsert = Database['public']['Tables']['reusable_questions']['Insert']
 export type ReusableQuestionUpdate = Database['public']['Tables']['reusable_questions']['Update']
+export type QuestionSegment = Database['public']['Tables']['question_segments']['Row']
+export type QuestionSegmentInsert = Database['public']['Tables']['question_segments']['Insert']
+export type QuestionSegmentUpdate = Database['public']['Tables']['question_segments']['Update']
 export type Form = Database['public']['Tables']['forms']['Row']
 export type FormInsert = Database['public']['Tables']['forms']['Insert']
 export type FormUpdate = Database['public']['Tables']['forms']['Update']

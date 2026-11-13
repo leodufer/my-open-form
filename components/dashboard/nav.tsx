@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { User } from '@supabase/supabase-js'
-import { Bookmark, LogOut, Plus, Settings, User as UserIcon } from 'lucide-react'
+import { Bookmark, Layers, LogOut, Plus, Settings, User as UserIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface DashboardNavProps {
@@ -48,6 +48,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
             {[
               { href: '/dashboard', label: 'Mis formularios' },
               { href: '/questions', label: 'Preguntas' },
+              { href: '/segments', label: 'Segmentos' },
               { href: '/settings', label: 'Configuración' },
             ].map((item) => (
               <Link
@@ -105,6 +106,12 @@ export function DashboardNav({ user }: DashboardNavProps) {
                 <Link href="/questions" className="cursor-pointer">
                   <Bookmark className="mr-2 h-4 w-4" />
                   Preguntas reutilizables
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/segments" className="cursor-pointer">
+                  <Layers className="mr-2 h-4 w-4" />
+                  Segmentos reutilizables
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

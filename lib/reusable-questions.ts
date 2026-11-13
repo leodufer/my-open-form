@@ -1,4 +1,10 @@
-import { Json, QuestionConfig, ReusableQuestion, ReusableQuestionInsert } from './database.types'
+import {
+  Json,
+  QuestionConfig,
+  QuestionSegment,
+  ReusableQuestion,
+  ReusableQuestionInsert,
+} from './database.types'
 
 type ReusableConfig = ReusableQuestion['config']
 
@@ -49,6 +55,20 @@ export function reusableQuestionToFormQuestion(reusable: ReusableQuestion): Ques
     required: reusable.required,
     ...config,
   }
+}
+
+/**
+ * Converts a QuestionSegment into an array of QuestionConfig items ready to be inserted into a form,
+ * preserving segmentId and segmentQuestionId for cross-form response traceability.
+ */
+export function segmentToFormQuestions(segment: QuestionSegment): QuestionConfig[] {
+  const segmentQuestions = (segment.questions as QuestionConfig[]) || []
+  return segmentQuestions.map((sq) => ({
+    ...sq,
+    id: crypto.randomUUID(),
+    segmentId: segment.id,
+    segmentQuestionId: sq.id,
+  }))
 }
 
 /**

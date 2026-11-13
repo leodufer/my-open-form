@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import { Trash2, Plus, GripVertical, X, Bookmark, Loader2 } from 'lucide-react'
+import { Trash2, Plus, GripVertical, X, Bookmark, Layers, Loader2 } from 'lucide-react'
 
 interface QuestionEditorProps {
   question: QuestionConfig
@@ -54,12 +54,20 @@ export function QuestionEditor({
           {typeInfo && <typeInfo.icon className="w-4 h-4 text-blue-600" />}
           <span className="text-sm font-medium text-slate-600">{typeInfo?.label}</span>
         </div>
-        {question.reusableQuestionId && (
-          <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 gap-1">
-            <Bookmark className="w-3 h-3" />
-            Reutilizable
-          </Badge>
-        )}
+        <div className="flex items-center gap-1.5">
+          {question.reusableQuestionId && (
+            <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 gap-1">
+              <Bookmark className="w-3 h-3" />
+              Reutilizable
+            </Badge>
+          )}
+          {question.segmentId && (
+            <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 border-indigo-200 gap-1">
+              <Layers className="w-3 h-3" />
+              Segmento
+            </Badge>
+          )}
+        </div>
       </div>
 
       {/* Question Title */}

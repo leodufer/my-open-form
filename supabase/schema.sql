@@ -46,6 +46,19 @@ CREATE TABLE reusable_questions (
 
 CREATE INDEX idx_reusable_questions_user_id ON reusable_questions(user_id);
 
+-- Question segments table (reusable groups of questions)
+CREATE TABLE question_segments (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  questions JSONB DEFAULT '[]'::jsonb NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+CREATE INDEX idx_question_segments_user_id ON question_segments(user_id);
+
 -- Forms table
 CREATE TABLE forms (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -90,6 +103,7 @@ CREATE INDEX idx_responses_submitted_at ON responses(submitted_at DESC);
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE collections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reusable_questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE question_segments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE forms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE responses ENABLE ROW LEVEL SECURITY;
 
@@ -125,6 +139,23 @@ CREATE POLICY "Users can update their own reusable questions"
 
 CREATE POLICY "Users can delete their own reusable questions"
   ON reusable_questions FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Question segments policies
+CREATE POLICY "Users can view their own question segments"
+  ON question_segments FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own question segments"
+  ON question_segments FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own question segments"
+  ON question_segments FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own question segments"
+  ON question_segments FOR DELETE
   USING (auth.uid() = user_id);
 
 -- Profiles policies
@@ -255,6 +286,10 @@ CREATE TRIGGER update_collections_updated_at
 
 CREATE TRIGGER update_reusable_questions_updated_at
   BEFORE UPDATE ON reusable_questions
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_question_segments_updated_at
+  BEFORE UPDATE ON question_segments
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 CREATE TRIGGER update_forms_updated_at

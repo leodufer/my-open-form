@@ -2,9 +2,21 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Form, Collection, QuestionConfig, ReusableQuestion, ThemePreset, FormStatus } from '@/lib/database.types'
+import {
+  Form,
+  Collection,
+  QuestionConfig,
+  QuestionSegment,
+  ReusableQuestion,
+  ThemePreset,
+  FormStatus,
+} from '@/lib/database.types'
 import { questionTypes, createDefaultQuestion, getQuestionTypeInfo } from '@/lib/questions'
-import { formQuestionToReusablePayload, reusableQuestionToFormQuestion } from '@/lib/reusable-questions'
+import {
+  formQuestionToReusablePayload,
+  reusableQuestionToFormQuestion,
+  segmentToFormQuestions,
+} from '@/lib/reusable-questions'
 import { themes, themeList } from '@/lib/themes'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -51,6 +63,7 @@ import {
   Loader2,
   Check,
   Bookmark,
+  Layers,
   Search,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -62,12 +75,14 @@ interface FormBuilderProps {
   form: Form
   collections?: Collection[]
   reusableQuestions?: ReusableQuestion[]
+  questionSegments?: QuestionSegment[]
 }
 
 export function FormBuilder({
   form: initialForm,
   collections = [],
   reusableQuestions: initialReusableQuestions = [],
+  questionSegments = [],
 }: FormBuilderProps) {
   const supabase = createClient()
   
@@ -84,8 +99,9 @@ export function FormBuilder({
   const [showFullPreview, setShowFullPreview] = useState(false)
   const [reusableQuestions, setReusableQuestions] = useState<ReusableQuestion[]>(initialReusableQuestions)
   const [isSavingReusable, setIsSavingReusable] = useState(false)
-  const [addElementTab, setAddElementTab] = useState<'new' | 'reusable'>('new')
+  const [addElementTab, setAddElementTab] = useState<'new' | 'reusable' | 'segments'>('new')
   const [reusableSearch, setReusableSearch] = useState('')
+  const [segmentSearch, setSegmentSearch] = useState('')
 
   const selectedQuestion = questions.find(q => q.id === selectedQuestionId)
 
@@ -195,6 +211,19 @@ export function FormBuilder({
     setShowAddQuestion(false)
     setHasUnsavedChanges(true)
     toast.success('Pregunta reutilizable agregada al formulario')
+  }
+
+  const addQuestionSegment = (segment: QuestionSegment) => {
+    const segmentQuestions = segmentToFormQuestions(segment)
+    if (segmentQuestions.length === 0) {
+      toast.error('Este segmento no tiene preguntas')
+      return
+    }
+    setQuestions([...questions, ...segmentQuestions])
+    setSelectedQuestionId(segmentQuestions[0].id)
+    setShowAddQuestion(false)
+    setHasUnsavedChanges(true)
+    toast.success(`Segmento agregado (${segmentQuestions.length} ${segmentQuestions.length === 1 ? 'pregunta' : 'preguntas'})`)
   }
 
   const saveQuestionAsReusable = async (question: QuestionConfig) => {
@@ -435,6 +464,9 @@ export function FormBuilder({
                                     )}
                                     {question.reusableQuestionId && (
                                       <Bookmark className="w-3 h-3 text-blue-600 shrink-0" aria-label="Pregunta reutilizable" />
+                                    )}
+                                    {question.segmentId && (
+                                      <Layers className="w-3 h-3 text-indigo-600 shrink-0" aria-label="Segmento reutilizable" />
                                     )}
                                   </div>
                                   <p className="text-sm font-medium text-slate-900 truncate">
@@ -692,13 +724,17 @@ export function FormBuilder({
           </DialogHeader>
           <Tabs
             value={addElementTab}
-            onValueChange={(val) => setAddElementTab(val as 'new' | 'reusable')}
+            onValueChange={(val) => setAddElementTab(val as 'new' | 'reusable' | 'segments')}
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="new">Nuevos elementos</TabsTrigger>
               <TabsTrigger value="reusable" className="gap-1.5">
                 <Bookmark className="w-3.5 h-3.5" />
                 Reutilizables ({reusableQuestions.length})
+              </TabsTrigger>
+              <TabsTrigger value="segments" className="gap-1.5">
+                <Layers className="w-3.5 h-3.5" />
+                Segmentos ({questionSegments.length})
               </TabsTrigger>
             </TabsList>
 
@@ -764,6 +800,67 @@ export function FormBuilder({
                               <p className="text-xs text-slate-500 mt-0.5">
                                 {info?.label ?? rq.type}
                                 {rq.description ? ` · ${rq.description}` : ''}
+                              </p>
+                            </div>
+                          </div>
+                          {alreadyInForm && (
+                            <Badge variant="secondary" className="shrink-0 text-xs">
+                              Ya en el formulario
+                            </Badge>
+                          )}
+                        </button>
+                      )
+                    })
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="segments" className="mt-4 space-y-3">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Input
+                  value={segmentSearch}
+                  onChange={(e) => setSegmentSearch(e.target.value)}
+                  placeholder="Buscar en tus segmentos reutilizables..."
+                  className="pl-9"
+                />
+              </div>
+              <div className="max-h-[48vh] overflow-y-auto space-y-2 pr-1">
+                {questionSegments.length === 0 ? (
+                  <div className="text-center py-8 px-4 border border-dashed rounded-lg">
+                    <Layers className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                    <p className="text-sm text-slate-600">No tenés segmentos reutilizables todavía</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Podés crear segmentos con varias preguntas en la sección Segmentos.
+                    </p>
+                    <Button variant="outline" size="sm" className="mt-3" asChild>
+                      <Link href="/segments">Ir a Segmentos</Link>
+                    </Button>
+                  </div>
+                ) : (
+                  questionSegments
+                    .filter((seg) =>
+                      !segmentSearch.trim() ||
+                      seg.name.toLowerCase().includes(segmentSearch.toLowerCase()) ||
+                      (seg.description || '').toLowerCase().includes(segmentSearch.toLowerCase())
+                    )
+                    .map((seg) => {
+                      const segQuestions = (seg.questions as QuestionConfig[]) || []
+                      const alreadyInForm = questions.some((q) => q.segmentId === seg.id)
+                      return (
+                        <button
+                          key={seg.id}
+                          onClick={() => addQuestionSegment(seg)}
+                          className="w-full p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/60 transition-all text-left flex items-start justify-between gap-3"
+                        >
+                          <div className="flex items-start gap-3 min-w-0">
+                            <Layers className="w-5 h-5 text-indigo-600 mt-0.5 shrink-0" />
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm text-slate-900 truncate">{seg.name}</p>
+                              <p className="text-xs text-slate-500 mt-0.5">
+                                {segQuestions.length}{' '}
+                                {segQuestions.length === 1 ? 'pregunta' : 'preguntas'}
+                                {seg.description ? ` · ${seg.description}` : ''}
                               </p>
                             </div>
                           </div>
