@@ -4,40 +4,44 @@ Fecha de entrada en vigor: 13 de noviembre de 2026
 
 IMPORTANTE: LEA DETENIDAMENTE LOS TÉRMINOS DE ESTE ACUERDO DE LICENCIA DE USUARIO FINAL ("ACUERDO") ANTES DE INSTALAR, ACCEDER O UTILIZAR LA APLICACIÓN OPENFORM ("EL SOFTWARE"). AL INSTALAR, COPIAR, ACCEDER O UTILIZAR EL SOFTWARE, USTED ("EL USUARIO" O "LICENCIATARIO") ACEPTA QUEDAR VINCULADO POR LOS TÉRMINOS Y CONDICIONES DEL PRESENTE ACUERDO. SI NO ESTÁ DE ACUERDO CON ESTOS TÉRMINOS, NO INSTALE NI UTILICE EL SOFTWARE.
 
-1. PROPIEDAD INTELECTUAL Y DERECHOS DE AUTOR
-El Software, incluyendo de forma enunciativa pero no limitativa su código fuente, código objeto, arquitectura, base de datos, diseño de interfaz gráfica, documentación, textos, logotipos, marcas, algoritmos, módulos y cualquier actualización o trabajo derivado del mismo, es propiedad exclusiva del creador y titular del sistema ("EL CREADOR").
-EL CREADOR se reserva todos los derechos de propiedad intelectual, industrial y derechos de autor sobre el Software a nivel mundial, protegidos por las leyes aplicables de propiedad intelectual y tratados internacionales. El Software se otorga bajo licencia de uso limitado, no se vende.
+1. RECONOCIMIENTO DE PROYECTO BASE Y LICENCIA MIT
+El presente Software ha sido desarrollado tomando como base el proyecto de código abierto opencode (repositorio original: https://github.com/dabit3/openform), cuyos componentes originales se encuentran licenciados bajo los términos de la Licencia MIT (MIT License).
+Se reconocen expresamente los derechos de propiedad intelectual y autoría de los titulares y colaboradores originales del proyecto opencode / openform (https://github.com/dabit3/openform) respecto de la base original sobre la cual se construyeron y ampliaron las nuevas funcionalidades del sistema, manteniéndose los avisos de copyright y permisos correspondientes conforme a dicha licencia MIT.
 
-2. RESERVA EXCLUSIVA DE DERECHOS DE DISTRIBUCIÓN
-Todos los derechos legales de distribución, publicación, reproducción, comunicación pública, comercialización, sublicenciamiento y puesta a disposición de terceros del Software quedan reservados de forma exclusiva a EL CREADOR.
+2. PROPIEDAD INTELECTUAL Y DERECHOS DE AUTOR SOBRE LAS NUEVAS FUNCIONALIDADES Y EL SISTEMA INTEGRADO
+Todas las nuevas funcionalidades, módulos, extensiones, adaptaciones, integraciones, diseño de interfaz, esquemas de base de datos, código fuente adicional, documentación y trabajos derivados desarrollados sobre la base mencionada, así como el Software en su conjunto como obra derivada e integrada, son propiedad exclusiva del creador y titular del sistema ("EL CREADOR").
+Sin perjuicio de los derechos que correspondan al proyecto original bajo la Licencia MIT respecto de sus archivos originales sin modificar, EL CREADOR se reserva todos los derechos de propiedad intelectual, industrial y derechos de autor sobre las nuevas funcionalidades y sobre el Software integrado a nivel mundial, protegidos por las leyes aplicables de propiedad intelectual y tratados internacionales. El Software se otorga bajo licencia de uso limitado, no se vende.
+
+3. RESERVA EXCLUSIVA DE DERECHOS DE DISTRIBUCIÓN
+Todos los derechos legales de distribución, publicación, reproducción, comunicación pública, comercialización, sublicenciamiento y puesta a disposición de terceros del Software integrado y de las nuevas funcionalidades desarrolladas quedan reservados de forma exclusiva a EL CREADOR.
 Queda estrictamente prohibido sin la autorización previa, expresa y por escrito de EL CREADOR:
   a) Distribuir, redistribuir, vender, alquilar, arrendar, prestar, sublicenciar o transferir el Software o copias del mismo a terceros, ya sea con fines comerciales o gratuitos.
-  b) Publicar o alojar el código fuente o los binarios del Software en repositorios públicos, plataformas de terceros o servicios accesibles fuera del entorno autorizado.
+  b) Publicar o alojar el código fuente modificado, las nuevas funcionalidades o los binarios del Software en repositorios públicos, plataformas de terceros o servicios accesibles fuera del entorno autorizado.
   c) Utilizar el Software para ofrecer servicios de software como servicio (SaaS) o explotación comercial a terceros no autorizados.
 
-3. CONCESIÓN DE LICENCIA LIMITADA
+4. CONCESIÓN DE LICENCIA LIMITADA
 Sujeto al cumplimiento estricto de este Acuerdo, EL CREADOR otorga al Licenciatario una licencia limitada, no exclusiva, intransferible y revocable para instalar y utilizar el Software únicamente para los fines autorizados por EL CREADOR dentro del entorno designado.
 
-4. RESTRICCIONES DE USO
+5. RESTRICCIONES DE USO
 El Licenciatario se compromete a no:
-  a) Modificar, adaptar, traducir o crear obras derivadas basadas en el Software, salvo autorización expresa por escrito de EL CREADOR.
+  a) Modificar, adaptar, traducir o crear obras derivadas basadas en las nuevas funcionalidades o en el Software integrado, salvo autorización expresa por escrito de EL CREADOR.
   b) Realizar ingeniería inversa, descompilar, desensamblar o intentar obtener el código fuente subyacente o la estructura interna del Software, excepto en la medida en que la ley aplicable lo permita expresamente.
-  c) Eliminar, alterar u ocultar cualquier aviso de derechos de autor, marca comercial, leyenda de propiedad o este archivo EULA incluido en el Software.
+  c) Eliminar, alterar u ocultar cualquier aviso de derechos de autor (incluidos los avisos del proyecto base bajo Licencia MIT), marca comercial, leyenda de propiedad o este archivo EULA incluido en el Software.
   d) Eludir, desactivar o vulnerar los mecanismos de control de acceso, autenticación, permisos o seguridad implementados en el Software.
 
-5. DATOS DEL USUARIO
+6. DATOS DEL USUARIO
 El Licenciatario conserva la titularidad sobre los formularios, preguntas, segmentos y respuestas creados o recopilados mediante el uso legítimo del Software, siendo el único responsable de la legalidad, respaldo y tratamiento de dichos datos conforme a la normativa vigente de protección de datos aplicable.
 
-6. EXCLUSIÓN DE GARANTÍAS
+7. EXCLUSIÓN DE GARANTÍAS
 EL SOFTWARE SE PROPORCIONA "TAL CUAL" ("AS IS") Y "SEGÚN DISPONIBILIDAD", SIN GARANTÍAS DE NINGÚN TIPO, YA SEAN EXPRESAS, IMPLÍCITAS O LEGALES, INCLUYENDO, ENTRE OTRAS, GARANTÍAS IMPLÍCITAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR, PRECISIÓN O NO INFRACCIÓN. EL CREADOR NO GARANTIZA QUE EL SOFTWARE FUNCIONE DE FORMA ININTERRUMPIDA O LIBRE DE ERRORES.
 
-7. LIMITACIÓN DE RESPONSABILIDAD
+8. LIMITACIÓN DE RESPONSABILIDAD
 EN LA MÁXIMA MEDIDA PERMITIDA POR LA LEY APLICABLE, EN NINGÚN CASO EL CREADOR SERÁ RESPONSABLE POR DAÑOS DIRECTOS, INDIRECTOS, INCIDENTALES, ESPECIALES, CONSECUENTES O PUNITIVOS (INCLUYENDO PÉRDIDA DE BENEFICIOS, PÉRDIDA DE DATOS O INTERRUPCIÓN DEL NEGOCIO) QUE SURJAN DEL USO O LA IMPOSIBILIDAD DE USO DEL SOFTWARE, INCLUSO SI SE HUBIERA ADVERTIDO DE LA POSIBILIDAD DE TALES DAÑOS.
 
-8. VIGENCIA Y TERMINACIÓN
+9. VIGENCIA Y TERMINACIÓN
 Este Acuerdo permanecerá vigente hasta su terminación. EL CREADOR podrá revocar esta licencia de forma inmediata si el Licenciatario incumple cualquiera de las disposiciones aquí establecidas. Al producirse la terminación, el Licenciatario deberá cesar de inmediato todo uso del Software y destruir o devolver todas las copias en su poder.
 
-9. DISPOSICIONES GENERALES
+10. DISPOSICIONES GENERALES
 La invalidez o inaplicabilidad de cualquier cláusula de este Acuerdo no afectará la validez de las restantes disposiciones. EL CREADOR se reserva el derecho de actualizar los términos de este Acuerdo en futuras versiones del Software.
 
 Todos los derechos no concedidos expresamente en este documento quedan reservados a EL CREADOR.
