@@ -45,12 +45,18 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
 
       {/* Question Title */}
       <div>
-        <Label htmlFor="title" className="text-sm font-medium">Question</Label>
+        <Label htmlFor="title" className="text-sm font-medium">
+          {question.type === 'statement' ? 'Título / Texto inicial' : 'Pregunta'}
+        </Label>
         <Textarea
           id="title"
           value={question.title}
           onChange={(e) => onUpdate({ title: e.target.value })}
-          placeholder="Type your question here..."
+          placeholder={
+            question.type === 'statement'
+              ? 'Escribí el texto de bienvenida o explicación...'
+              : 'Escribí tu pregunta aquí...'
+          }
           className="mt-2 resize-none"
           rows={2}
         />
@@ -59,13 +65,13 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
       {/* Description */}
       <div>
         <Label htmlFor="description" className="text-sm font-medium">
-          Description <span className="text-slate-400 font-normal">(optional)</span>
+          Descripción <span className="text-slate-400 font-normal">(opcional)</span>
         </Label>
         <Textarea
           id="description"
           value={question.description || ''}
           onChange={(e) => onUpdate({ description: e.target.value })}
-          placeholder="Add a description..."
+          placeholder="Agregá una descripción..."
           className="mt-2 resize-none"
           rows={2}
         />
@@ -74,9 +80,22 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
       <Separator />
 
       {/* Type-specific settings */}
+      {question.type === 'statement' && (
+        <div>
+          <Label htmlFor="buttonText" className="text-sm font-medium">Texto del botón</Label>
+          <Input
+            id="buttonText"
+            value={question.buttonText ?? 'Aceptar'}
+            onChange={(e) => onUpdate({ buttonText: e.target.value })}
+            placeholder="Aceptar"
+            className="mt-2"
+          />
+        </div>
+      )}
+
       {(question.type === 'dropdown' || question.type === 'checkboxes') && (
         <div>
-          <Label className="text-sm font-medium mb-3 block">Options</Label>
+          <Label className="text-sm font-medium mb-3 block">Opciones</Label>
           <div className="space-y-2">
             {(question.options || []).map((option, index) => (
               <div
@@ -89,7 +108,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
                 <Input
                   value={option}
                   onChange={(e) => updateOption(index, e.target.value)}
-                  placeholder={`Option ${index + 1}`}
+                  placeholder={`Opción ${index + 1}`}
                   className="flex-1"
                 />
                 <Button
@@ -111,7 +130,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
             className="mt-3 w-full"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add option
+            Agregar opción
           </Button>
         </div>
       )}
@@ -120,12 +139,12 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
         question.type === 'email' || question.type === 'phone' || 
         question.type === 'url' || question.type === 'number') && (
         <div>
-          <Label htmlFor="placeholder" className="text-sm font-medium">Placeholder</Label>
+          <Label htmlFor="placeholder" className="text-sm font-medium">Texto de ayuda (placeholder)</Label>
           <Input
             id="placeholder"
             value={question.placeholder || ''}
             onChange={(e) => onUpdate({ placeholder: e.target.value })}
-            placeholder="Placeholder text..."
+            placeholder="Texto de ejemplo..."
             className="mt-2"
           />
         </div>
@@ -133,10 +152,10 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
 
       {question.type === 'rating' && (
         <div>
-          <Label className="text-sm font-medium mb-3 block">Rating Scale</Label>
+          <Label className="text-sm font-medium mb-3 block">Escala de calificación</Label>
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <Label htmlFor="minValue" className="text-xs text-slate-500">Min</Label>
+              <Label htmlFor="minValue" className="text-xs text-slate-500">Mín</Label>
               <Input
                 id="minValue"
                 type="number"
@@ -148,7 +167,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
               />
             </div>
             <div className="flex-1">
-              <Label htmlFor="maxValue" className="text-xs text-slate-500">Max</Label>
+              <Label htmlFor="maxValue" className="text-xs text-slate-500">Máx</Label>
               <Input
                 id="maxValue"
                 type="number"
@@ -165,10 +184,10 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
 
       {question.type === 'opinion_scale' && (
         <div>
-          <Label className="text-sm font-medium mb-3 block">Scale Range</Label>
+          <Label className="text-sm font-medium mb-3 block">Rango de escala</Label>
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <Label htmlFor="minValue" className="text-xs text-slate-500">Min</Label>
+              <Label htmlFor="minValue" className="text-xs text-slate-500">Mín</Label>
               <Input
                 id="minValue"
                 type="number"
@@ -180,7 +199,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
               />
             </div>
             <div className="flex-1">
-              <Label htmlFor="maxValue" className="text-xs text-slate-500">Max</Label>
+              <Label htmlFor="maxValue" className="text-xs text-slate-500">Máx</Label>
               <Input
                 id="maxValue"
                 type="number"
@@ -198,11 +217,11 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
       {question.type === 'file_upload' && (
         <div className="space-y-4">
           <div>
-            <Label className="text-sm font-medium mb-2 block">Allowed file types</Label>
-            <p className="text-sm text-slate-500">Images and PDFs are allowed</p>
+            <Label className="text-sm font-medium mb-2 block">Tipos de archivo permitidos</Label>
+            <p className="text-sm text-slate-500">Se permiten imágenes y PDFs</p>
           </div>
           <div>
-            <Label htmlFor="maxFileSize" className="text-sm font-medium">Max file size (MB)</Label>
+            <Label htmlFor="maxFileSize" className="text-sm font-medium">Tamaño máximo (MB)</Label>
             <Input
               id="maxFileSize"
               type="number"
@@ -216,19 +235,23 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
         </div>
       )}
 
-      <Separator />
+      {question.type !== 'statement' && (
+        <>
+          <Separator />
 
-      {/* Required toggle */}
-      <div className="flex items-center justify-between">
-        <div>
-          <Label className="text-sm font-medium">Required</Label>
-          <p className="text-xs text-slate-500">Respondents must answer this question</p>
-        </div>
-        <Switch
-          checked={question.required}
-          onCheckedChange={(checked) => onUpdate({ required: checked })}
-        />
-      </div>
+          {/* Required toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-sm font-medium">Obligatoria</Label>
+              <p className="text-xs text-slate-500">Los usuarios deben responder esta pregunta</p>
+            </div>
+            <Switch
+              checked={question.required}
+              onCheckedChange={(checked) => onUpdate({ required: checked })}
+            />
+          </div>
+        </>
+      )}
 
       <Separator />
 
@@ -239,7 +262,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
         className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
       >
         <Trash2 className="w-4 h-4 mr-2" />
-        Delete question
+        Eliminar elemento
       </Button>
     </div>
   )

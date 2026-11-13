@@ -29,7 +29,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) {
-      toast.error('Failed to sign out')
+      toast.error('No se pudo cerrar sesión')
     } else {
       router.push('/')
       router.refresh()
@@ -46,8 +46,8 @@ export function DashboardNav({ user }: DashboardNavProps) {
           <Logo href="/dashboard" />
           <div className="hidden md:flex items-center gap-6">
             {[
-              { href: '/dashboard', label: 'My Forms' },
-              { href: '/settings', label: 'Settings' },
+              { href: '/dashboard', label: 'Mis formularios' },
+              { href: '/settings', label: 'Configuración' },
             ].map((item) => (
               <Link
                 key={item.href}
@@ -67,15 +67,15 @@ export function DashboardNav({ user }: DashboardNavProps) {
           <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-sm">
             <Link href="/forms/new">
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Create form</span>
+              <span className="hidden sm:inline">Crear formulario</span>
             </Link>
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0" aria-label="Account menu">
+              <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0" aria-label="Menú de cuenta">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src={avatarUrl} alt={user.email || 'User'} />
+                  <AvatarImage src={avatarUrl} alt={user.email || 'Usuario'} />
                   <AvatarFallback className="bg-blue-600 text-white font-medium">
                     {initials}
                   </AvatarFallback>
@@ -97,19 +97,19 @@ export function DashboardNav({ user }: DashboardNavProps) {
               <DropdownMenuItem asChild>
                 <Link href="/dashboard" className="cursor-pointer">
                   <UserIcon className="mr-2 h-4 w-4" />
-                  My Forms
+                  Mis formularios
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/settings" className="cursor-pointer">
                   <Settings className="mr-2 h-4 w-4" />
-                  Settings
+                  Configuración
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600">
                 <LogOut className="mr-2 h-4 w-4" />
-                Sign out
+                Cerrar sesión
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

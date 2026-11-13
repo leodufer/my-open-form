@@ -23,33 +23,33 @@ async function getUser() {
 const features = [
   {
     icon: Zap,
-    title: 'One question at a time',
-    description: 'A focused, conversational flow that keeps respondents moving instead of scrolling a wall of fields.',
+    title: 'Una pregunta a la vez',
+    description: 'Un flujo enfocado y conversacional que mantiene a quien responde avanzando sin abrumar.',
   },
   {
     icon: Keyboard,
-    title: 'Keyboard first',
-    description: 'Enter to continue, letter keys to pick options, arrows to move around. No mouse required.',
+    title: 'Pensado para teclado',
+    description: 'Enter para continuar, letras para elegir opciones y flechas para navegar. Sin necesidad de mouse.',
   },
   {
     icon: Palette,
-    title: 'Six polished themes',
-    description: 'Pick a look in one click and preview it live while you build.',
+    title: 'Seis temas cuidados',
+    description: 'Elegí un estilo en un clic y previsualizalo en vivo mientras creás tu formulario.',
   },
   {
     icon: Smartphone,
-    title: 'Mobile ready',
-    description: 'Large tap targets and native inputs make forms just as pleasant on a phone.',
+    title: 'Listo para móviles',
+    description: 'Controles amplios y entradas nativas para que completar un formulario en el teléfono sea igual de cómodo.',
   },
   {
     icon: Download,
-    title: 'Your data, exportable',
-    description: 'Search responses, preview uploaded files, and export everything to CSV.',
+    title: 'Tus datos exportables',
+    description: 'Buscá respuestas, previsualizá archivos adjuntos y exportá todo a CSV.',
   },
   {
     icon: Shield,
-    title: 'Private by default',
-    description: 'Row-level security means only you can see the responses to your forms.',
+    title: 'Privado por defecto',
+    description: 'La seguridad a nivel de fila garantiza que solo vos puedas ver las respuestas de tus formularios.',
   },
 ]
 
@@ -68,17 +68,17 @@ export default async function HomePage() {
             {user ? (
               <Button asChild className="bg-blue-600 hover:bg-blue-700 shadow-sm">
                 <Link href="/dashboard">
-                  Dashboard
+                  Panel
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
             ) : (
               <>
                 <Button asChild variant="ghost" className="text-slate-600 hover:text-slate-900">
-                  <Link href="/login">Sign in</Link>
+                  <Link href="/login">Ingresar</Link>
                 </Button>
                 <Button asChild className="bg-blue-600 hover:bg-blue-700 shadow-sm">
-                  <Link href="/login">Get started</Link>
+                  <Link href="/login">Comenzar</Link>
                 </Button>
               </>
             )}
@@ -101,27 +101,27 @@ export default async function HomePage() {
             className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-xs transition-colors hover:border-slate-300 hover:text-slate-900 mb-8"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            Free &amp; open source
+            Gratis y de código abierto
             <ArrowRight className="w-3 h-3" />
           </a>
 
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-semibold tracking-tight leading-[1.05] text-balance mb-6">
-            Forms that feel <span className="text-blue-600">human</span>
+            Formularios que se sienten <span className="text-blue-600">humanos</span>
           </h1>
 
           <p className="text-lg sm:text-xl text-slate-600 max-w-xl mx-auto mb-10 leading-relaxed text-pretty">
-            Build beautiful, conversational forms people actually enjoy filling out. One question at a time.
+            Creá formularios conversacionales atractivos que la gente disfruta completar. Una pregunta a la vez.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button asChild size="lg" className="h-12 px-6 text-base bg-blue-600 hover:bg-blue-700 shadow-sm w-full sm:w-auto">
               <Link href={ctaHref}>
-                {user ? 'Go to dashboard' : 'Start building for free'}
+                {user ? 'Ir al panel' : 'Empezar gratis'}
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="h-12 px-6 text-base w-full sm:w-auto">
-              <Link href="#features">See features</Link>
+              <Link href="#features">Ver funciones</Link>
             </Button>
           </div>
         </div>
@@ -152,10 +152,10 @@ export default async function HomePage() {
                   <span className="pt-1 text-sm font-semibold" style={{ color: previewTheme.primaryColor }}>2 →</span>
                   <div className="flex-1">
                     <h3 className="text-xl sm:text-3xl font-semibold tracking-tight mb-6">
-                      How did you hear about us?
+                      ¿Cómo nos conociste?
                     </h3>
                     <div className="grid gap-2">
-                      {['A friend', 'Social media', 'Search engine'].map((option, i) => (
+                      {['Un amigo', 'Redes sociales', 'Buscador'].map((option, i) => (
                         <div
                           key={option}
                           className="flex items-center gap-3 rounded-lg border px-3 py-2 text-sm sm:text-base"
@@ -191,10 +191,10 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="max-w-2xl mb-12 sm:mb-16">
             <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight mb-4 text-balance">
-              Everything you need, nothing you don&apos;t
+              Todo lo que necesitás, sin complicaciones
             </h2>
             <p className="text-lg text-slate-600">
-              A small, fast form builder focused on the experience of the person filling it out.
+              Un constructor de formularios rápido y simple, centrado en la experiencia de quien responde.
             </p>
           </div>
 
@@ -216,8 +216,8 @@ export default async function HomePage() {
       <section className="py-20 sm:py-24 px-4 sm:px-6 bg-slate-50 border-y border-slate-200">
         <div className="max-w-6xl mx-auto">
           <div className="max-w-2xl mb-12">
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight mb-4">Pick a look in one click</h2>
-            <p className="text-lg text-slate-600">Every theme comes with its own palette and typeface.</p>
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight mb-4">Elegí un diseño en un clic</h2>
+            <p className="text-lg text-slate-600">Cada tema incluye su propia paleta de colores y tipografía.</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {themeList.map((theme) => (
@@ -233,9 +233,9 @@ export default async function HomePage() {
                     className="rounded-md px-3 py-1 text-xs font-semibold"
                     style={{ backgroundColor: theme.primaryColor, color: theme.backgroundColor }}
                   >
-                    OK
+                    Siguiente
                   </span>
-                  <span className="text-[11px] opacity-60">press Enter ↵</span>
+                  <span className="text-[11px] opacity-60">presioná Enter ↵</span>
                 </div>
               </div>
             ))}
@@ -248,9 +248,9 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="max-w-2xl mb-12">
             <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight mb-4">
-              {questionTypes.length} question types
+              {questionTypes.length} tipos de elementos
             </h2>
-            <p className="text-lg text-slate-600">From short answers to ratings and file uploads.</p>
+            <p className="text-lg text-slate-600">Desde textos iniciales y respuestas cortas hasta calificaciones y carga de archivos.</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {questionTypes.map((qt) => (
@@ -266,11 +266,11 @@ export default async function HomePage() {
       {/* CTA */}
       <section className="pb-20 sm:pb-24 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto rounded-3xl bg-slate-900 px-6 py-14 sm:p-16 text-center text-white">
-          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight mb-4">Ready to build your first form?</h2>
-          <p className="text-slate-400 mb-8 text-lg">It takes about a minute. No credit card, no limits.</p>
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight mb-4">¿Listo para crear tu primer formulario?</h2>
+          <p className="text-slate-400 mb-8 text-lg">Toma alrededor de un minuto. Sin tarjeta de crédito ni límites.</p>
           <Button asChild size="lg" className="h-12 px-6 text-base bg-white text-slate-900 hover:bg-slate-100">
             <Link href={ctaHref}>
-              {user ? 'Go to dashboard' : 'Get started for free'}
+              {user ? 'Ir al panel' : 'Comenzar gratis'}
               <ArrowRight className="w-4 h-4" />
             </Link>
           </Button>
@@ -280,7 +280,7 @@ export default async function HomePage() {
       {/* Footer */}
       <footer className="border-t border-slate-200 py-8 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-slate-500 text-sm">© {new Date().getFullYear()} OpenForm. Open source and free forever.</p>
+          <p className="text-slate-500 text-sm">© {new Date().getFullYear()} OpenForm. Código abierto y gratis para siempre.</p>
           <a
             href="https://github.com/dabit3/openform"
             target="_blank"

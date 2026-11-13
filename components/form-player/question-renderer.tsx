@@ -275,6 +275,9 @@ export function QuestionRenderer({
   }
 
   switch (question.type) {
+    case 'statement':
+      return null
+
     case 'short_text':
     case 'email':
     case 'phone':
@@ -302,7 +305,7 @@ export function QuestionRenderer({
           value={String(value ?? '')}
           onChange={(e) => onChange(e.target.value)}
           {...focusHandlers}
-          placeholder={question.placeholder || 'Type your answer here...'}
+          placeholder={question.placeholder || 'Escribí tu respuesta aquí...'}
           aria-invalid={!!error}
           className="text-xl md:text-3xl h-auto py-3 px-0 border-0 border-b-2 rounded-none shadow-none bg-transparent dark:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:opacity-35 [&::-webkit-inner-spin-button]:appearance-none"
           style={inputStyles}
@@ -317,7 +320,7 @@ export function QuestionRenderer({
           value={String(value ?? '')}
           onChange={(e) => onChange(e.target.value)}
           {...focusHandlers}
-          placeholder={question.placeholder || 'Type your answer here...'}
+          placeholder={question.placeholder || 'Escribí tu respuesta aquí...'}
           aria-invalid={!!error}
           className="text-lg md:text-2xl min-h-[140px] max-h-[45vh] px-0 py-3 border-0 border-b-2 rounded-none shadow-none bg-transparent dark:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:opacity-35 resize-none"
           style={inputStyles}
@@ -361,7 +364,7 @@ export function QuestionRenderer({
       return (
         <div className="max-w-xl">
           <p className="text-sm opacity-60 mb-3" style={{ color: theme.textColor }}>
-            Choose as many as you like
+            Elegí todas las opciones que correspondan
           </p>
           <div className="grid gap-2.5">
             {(question.options || []).map((option, index) => {
@@ -392,11 +395,11 @@ export function QuestionRenderer({
     case 'yes_no':
       return (
         <div className="grid grid-cols-2 gap-3 max-w-sm">
-          {['Yes', 'No'].map((option) => (
+          {['Sí', 'No'].map((option) => (
             <ChoiceButton
               key={option}
               label={option}
-              hotkey={option[0]}
+              hotkey={option === 'Sí' ? 'S' : 'N'}
               selected={value === option}
               shape="square"
               theme={theme}

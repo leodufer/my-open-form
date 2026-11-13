@@ -8,6 +8,7 @@ export type Json =
 
 // Question types supported by the form builder
 export type QuestionType =
+  | 'statement'
   | 'short_text'
   | 'long_text'
   | 'dropdown'
@@ -58,6 +59,7 @@ export interface QuestionConfig {
   allowedFileTypes?: string[] // For file_upload
   maxFileSize?: number // In MB
   placeholder?: string
+  buttonText?: string // For statement
 }
 
 // Database tables
@@ -89,10 +91,32 @@ export interface Database {
           updated_at?: string
         }
       }
+      collections: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          collection_id?: string | null
+          name: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          name?: string
+          updated_at?: string
+        }
+      }
       forms: {
         Row: {
           id: string
           user_id: string
+          collection_id: string | null
           title: string
           description: string | null
           slug: string
@@ -100,12 +124,14 @@ export interface Database {
           theme: ThemePreset
           questions: QuestionConfig[]
           thank_you_message: string
+          allow_multiple_submissions: boolean
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           user_id: string
+          collection_id?: string | null
           title: string
           description?: string | null
           slug: string
@@ -113,10 +139,12 @@ export interface Database {
           theme?: ThemePreset
           questions?: QuestionConfig[]
           thank_you_message?: string
+          allow_multiple_submissions?: boolean
           created_at?: string
           updated_at?: string
         }
         Update: {
+          collection_id?: string | null
           title?: string
           description?: string | null
           slug?: string
@@ -124,6 +152,7 @@ export interface Database {
           theme?: ThemePreset
           questions?: QuestionConfig[]
           thank_you_message?: string
+          allow_multiple_submissions?: boolean
           updated_at?: string
         }
       }
@@ -150,6 +179,7 @@ export interface Database {
 
 // Convenience types
 export type Profile = Database['public']['Tables']['profiles']['Row']
+export type Collection = Database['public']['Tables']['collections']['Row']
 export type Form = Database['public']['Tables']['forms']['Row']
 export type FormInsert = Database['public']['Tables']['forms']['Insert']
 export type FormUpdate = Database['public']['Tables']['forms']['Update']

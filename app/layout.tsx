@@ -35,10 +35,10 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "OpenForm - Create Beautiful Forms",
+    default: "OpenForm - Creá formularios increíbles",
     template: "%s · OpenForm",
   },
-  description: "Build stunning, TypeForm-style forms in minutes. Free and open source.",
+  description: "Creá formularios modernos estilo TypeForm en minutos. Gratis y de código abierto.",
 };
 
 export default function RootLayout({
@@ -47,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body
         className={`${dmSans.variable} ${plusJakarta.variable} ${outfit.variable} ${sora.variable} ${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}
       >

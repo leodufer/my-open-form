@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Form, QuestionConfig, ThemePreset, FormStatus } from '@/lib/database.types'
+import { Form, Collection, QuestionConfig, ThemePreset, FormStatus } from '@/lib/database.types'
 import { questionTypes, createDefaultQuestion } from '@/lib/questions'
 import { themes, themeList } from '@/lib/themes'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,14 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -49,9 +57,10 @@ import { FormPlayer } from '@/components/form-player/form-player'
 
 interface FormBuilderProps {
   form: Form
+  collections?: Collection[]
 }
 
-export function FormBuilder({ form: initialForm }: FormBuilderProps) {
+export function FormBuilder({ form: initialForm, collections = [] }: FormBuilderProps) {
   const supabase = createClient()
   
   const [form, setForm] = useState(initialForm)
@@ -70,7 +79,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
 
   const handleSave = useCallback(async () => {
     if (!form.slug) {
-      toast.error('Form URL cannot be empty')
+      toast.error('La URL del formulario no puede estar vacía')
       setActiveTab('settings')
       return
     }
@@ -80,8 +89,10 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
       description: form.description,
       slug: form.slug,
       theme: form.theme,
+      collection_id: form.collection_id,
       questions: questions,
       thank_you_message: form.thank_you_message,
+      allow_multiple_submissions: Boolean(form.allow_multiple_submissions),
     }
     const { error } = await supabase
       .from('forms')
@@ -89,9 +100,9 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
       .eq('id', form.id)
 
     if (error) {
-      toast.error(error.code === '23505' ? 'That form URL is already taken' : 'Failed to save form')
+      toast.error(error.code === '23505' ? 'Esa URL ya está en uso' : 'No se pudo guardar el formulario')
     } else {
-      toast.success('Form saved')
+      toast.success('Formulario guardado')
       setHasUnsavedChanges(false)
     }
     setIsSaving(false)
@@ -119,11 +130,11 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
 
   const handlePublish = async () => {
     if (questions.length === 0 && form.status !== 'published') {
-      toast.error('Add at least one question before publishing')
+      toast.error('Agregá al menos una pregunta antes de publicar')
       return
     }
     if (!form.slug) {
-      toast.error('Form URL cannot be empty')
+      toast.error('La URL del formulario no puede estar vacía')
       return
     }
 
@@ -137,7 +148,9 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
       description: form.description,
       slug: form.slug,
       theme: form.theme,
+      collection_id: form.collection_id,
       thank_you_message: form.thank_you_message,
+      allow_multiple_submissions: Boolean(form.allow_multiple_submissions),
     }
     const { error } = await supabase
       .from('forms')
@@ -145,10 +158,10 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
       .eq('id', form.id)
 
     if (error) {
-      toast.error(error.code === '23505' ? 'That form URL is already taken' : 'Failed to update form status')
+      toast.error(error.code === '23505' ? 'Esa URL ya está en uso' : 'No se pudo actualizar el estado del formulario')
     } else {
       setForm({ ...form, status: newStatus })
-      toast.success(newStatus === 'published' ? 'Form published!' : 'Form unpublished')
+      toast.success(newStatus === 'published' ? '¡Formulario publicado!' : 'Formulario despublicado')
       setShowPublishDialog(false)
       setHasUnsavedChanges(false)
     }
@@ -196,9 +209,9 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
     const link = `${window.location.origin}/f/${form.slug}`
     try {
       await navigator.clipboard.writeText(link)
-      toast.success('Link copied to clipboard')
+      toast.success('Enlace copiado al portapapeles')
     } catch {
-      toast.error('Couldn’t copy link')
+      toast.error('No se pudo copiar el enlace')
     }
   }
 
@@ -212,7 +225,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
           <Button variant="ghost" size="sm" asChild>
             <Link href="/dashboard">
               <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline">Volver</span>
             </Link>
           </Button>
           <Separator orientation="vertical" className="h-6" />
@@ -224,29 +237,29 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                 setHasUnsavedChanges(true)
               }}
               className="text-lg font-semibold border-0 border-b-2 border-transparent bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-blue-500 hover:border-slate-300 px-1 pr-7 max-w-xs transition-colors"
-              placeholder="Untitled Form"
+              placeholder="Formulario sin título"
             />
             <Pencil className="w-3.5 h-3.5 text-slate-400 absolute right-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity pointer-events-none" />
           </div>
           {form.status === 'published' && (
-            <Badge className="bg-emerald-100 text-emerald-700">Published</Badge>
+            <Badge className="bg-emerald-100 text-emerald-700">Publicado</Badge>
           )}
           {form.status === 'draft' && (
-            <Badge variant="secondary">Draft</Badge>
+            <Badge variant="secondary">Borrador</Badge>
           )}
           {form.status === 'closed' && (
-            <Badge variant="secondary" className="bg-amber-100 text-amber-700">Closed</Badge>
+            <Badge variant="secondary" className="bg-amber-100 text-amber-700">Cerrado</Badge>
           )}
           <span className="hidden md:inline-flex items-center gap-1.5 text-xs text-slate-500 whitespace-nowrap">
             {hasUnsavedChanges ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                Unsaved changes
+                Cambios sin guardar
               </>
             ) : (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-500" />
-                All changes saved
+                Todo guardado
               </>
             )}
           </span>
@@ -255,14 +268,14 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
         <div className="flex items-center gap-2 shrink-0">
           {form.status === 'published' && (
             <>
-              <Button variant="ghost" size="sm" onClick={copyFormLink} title="Copy link">
+              <Button variant="ghost" size="sm" onClick={copyFormLink} title="Copiar enlace">
                 <Copy className="w-4 h-4" />
-                <span className="hidden lg:inline">Copy link</span>
+                <span className="hidden lg:inline">Copiar enlace</span>
               </Button>
-              <Button variant="ghost" size="sm" asChild title="Open live form">
+              <Button variant="ghost" size="sm" asChild title="Abrir formulario público">
                 <Link href={`/f/${form.slug}`} target="_blank">
                   <ExternalLink className="w-4 h-4" />
-                  <span className="hidden lg:inline">View</span>
+                  <span className="hidden lg:inline">Ver</span>
                 </Link>
               </Button>
             </>
@@ -274,17 +287,17 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
             disabled={questions.length === 0}
           >
             <Eye className="w-4 h-4" />
-            <span className="hidden sm:inline">Preview</span>
+            <span className="hidden sm:inline">Vista previa</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={handleSave}
             disabled={isSaving || !hasUnsavedChanges}
-            title="Save (⌘S)"
+            title="Guardar (⌘S)"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            <span className="hidden sm:inline">Save</span>
+            <span className="hidden sm:inline">Guardar</span>
           </Button>
           <Button
             size="sm"
@@ -295,7 +308,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
             }
           >
             <Globe className="w-4 h-4" />
-            {form.status === 'published' ? 'Unpublish' : 'Publish'}
+            {form.status === 'published' ? 'Despublicar' : 'Publicar'}
           </Button>
         </div>
       </header>
@@ -309,15 +322,15 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="questions" className="text-xs">
                   <FileText className="w-3 h-3 mr-1" />
-                  Questions
+                  Preguntas
                 </TabsTrigger>
                 <TabsTrigger value="design" className="text-xs">
                   <Palette className="w-3 h-3 mr-1" />
-                  Design
+                  Diseño
                 </TabsTrigger>
                 <TabsTrigger value="settings" className="text-xs">
                   <Settings className="w-3 h-3 mr-1" />
-                  Settings
+                  Ajustes
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -329,7 +342,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                   className="w-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Question
+                  Agregar elemento
                 </Button>
               </div>
               
@@ -338,8 +351,8 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                   {questions.length === 0 ? (
                     <div className="text-center py-8 px-4">
                       <FileText className="w-12 h-12 mx-auto text-slate-300 mb-3" />
-                      <p className="text-sm text-slate-500">No questions yet</p>
-                      <p className="text-xs text-slate-400 mt-1">Add your first question to get started</p>
+                      <p className="text-sm text-slate-500">Todavía no hay preguntas</p>
+                      <p className="text-xs text-slate-400 mt-1">Agregá tu primer elemento para comenzar</p>
                     </div>
                   ) : (
                     <Reorder.Group axis="y" values={questions} onReorder={handleReorder}>
@@ -377,7 +390,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                                     )}
                                   </div>
                                   <p className="text-sm font-medium text-slate-900 truncate">
-                                    {question.title || 'Untitled question'}
+                                    {question.title || 'Sin título'}
                                   </p>
                                 </div>
                                 <div className="flex opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
@@ -385,8 +398,8 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                                     variant="ghost"
                                     size="sm"
                                     className="h-7 w-7 p-0"
-                                    aria-label="Duplicate question"
-                                    title="Duplicate"
+                                    aria-label="Duplicar"
+                                    title="Duplicar"
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       duplicateQuestion(question.id)
@@ -398,8 +411,8 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                                     variant="ghost"
                                     size="sm"
                                     className="h-7 w-7 p-0 hover:text-red-500"
-                                    aria-label="Delete question"
-                                    title="Delete"
+                                    aria-label="Eliminar"
+                                    title="Eliminar"
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       deleteQuestion(question.id)
@@ -422,7 +435,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
             <TabsContent value="design" className="flex-1 mt-0 overflow-auto data-[state=inactive]:hidden">
               <div className="p-4 space-y-6">
                 <div>
-                  <Label className="text-sm font-medium mb-3 block">Theme</Label>
+                  <Label className="text-sm font-medium mb-3 block">Tema</Label>
                   <div className="grid grid-cols-2 gap-2">
                     {themeList.map((theme) => (
                       <button
@@ -458,8 +471,32 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
 
             <TabsContent value="settings" className="flex-1 mt-0 overflow-auto data-[state=inactive]:hidden">
               <div className="p-4 space-y-6">
+                {collections.length > 0 && (
+                  <div>
+                    <Label htmlFor="collection" className="text-sm font-medium">Colección</Label>
+                    <Select
+                      value={form.collection_id ?? collections[0]?.id}
+                      onValueChange={(value) => {
+                        setForm({ ...form, collection_id: value })
+                        setHasUnsavedChanges(true)
+                      }}
+                    >
+                      <SelectTrigger id="collection" className="mt-2 w-full">
+                        <SelectValue placeholder="Seleccionar colección" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {collections.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 <div>
-                  <Label htmlFor="slug" className="text-sm font-medium">Form URL</Label>
+                  <Label htmlFor="slug" className="text-sm font-medium">URL del formulario</Label>
                   <div className="mt-2 flex items-center gap-2">
                     <span className="text-sm text-slate-500">/f/</span>
                     <Input
@@ -471,13 +508,13 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                         setHasUnsavedChanges(true)
                       }}
                       className="flex-1"
-                      placeholder="my-form"
+                      placeholder="mi-formulario"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+                  <Label htmlFor="description" className="text-sm font-medium">Descripción</Label>
                   <Textarea
                     id="description"
                     value={form.description || ''}
@@ -486,16 +523,16 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                       setHasUnsavedChanges(true)
                     }}
                     className="mt-2"
-                    placeholder="Optional form description..."
+                    placeholder="Descripción opcional del formulario..."
                     rows={3}
                   />
                   <p className="mt-1.5 text-xs text-slate-500">
-                    When set, respondents see a welcome screen with your title and description before the first question.
+                    Si está definida, se muestra una pantalla de bienvenida con el título y la descripción antes de la primera pregunta.
                   </p>
                 </div>
 
                 <div>
-                  <Label htmlFor="thank_you" className="text-sm font-medium">Thank You Message</Label>
+                  <Label htmlFor="thank_you" className="text-sm font-medium">Mensaje de agradecimiento</Label>
                   <Textarea
                     id="thank_you"
                     value={form.thank_you_message}
@@ -504,8 +541,29 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                       setHasUnsavedChanges(true)
                     }}
                     className="mt-2"
-                    placeholder="Thank you for your response!"
+                    placeholder="¡Gracias por tu respuesta!"
                     rows={3}
+                  />
+                </div>
+
+                <Separator />
+
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <Label htmlFor="allow_multiple" className="text-sm font-medium">
+                      Permitir múltiples respuestas
+                    </Label>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Permite completar el formulario más de una vez y muestra un botón al final para cargar otra respuesta.
+                    </p>
+                  </div>
+                  <Switch
+                    id="allow_multiple"
+                    checked={Boolean(form.allow_multiple_submissions)}
+                    onCheckedChange={(checked) => {
+                      setForm({ ...form, allow_multiple_submissions: checked })
+                      setHasUnsavedChanges(true)
+                    }}
                   />
                 </div>
               </div>
@@ -519,7 +577,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
           {selectedQuestion && (
             <div className="w-96 bg-white border-r border-slate-200 overflow-auto">
               <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                <h3 className="font-medium">Edit Question</h3>
+                <h3 className="font-medium">Editar elemento</h3>
                 <Button 
                   variant="ghost" 
                   size="sm"
@@ -542,7 +600,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
               <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden mb-4">
                 <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border-b border-slate-200">
                   <Eye className="w-4 h-4 text-slate-500" />
-                  <span className="text-sm font-medium text-slate-600">Preview</span>
+                  <span className="text-sm font-medium text-slate-600">Vista previa</span>
                 </div>
                 <div 
                   className="min-h-[500px]"
@@ -577,9 +635,9 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
       <Dialog open={showAddQuestion} onOpenChange={setShowAddQuestion}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Add Question</DialogTitle>
+            <DialogTitle>Agregar elemento</DialogTitle>
             <DialogDescription>
-              Choose a question type to add to your form
+              Elegí un tipo de elemento para agregar a tu formulario
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 py-4 max-h-[60vh] overflow-y-auto">
@@ -603,12 +661,12 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {form.status === 'published' ? 'Unpublish form?' : 'Publish form?'}
+              {form.status === 'published' ? '¿Despublicar formulario?' : '¿Publicar formulario?'}
             </DialogTitle>
             <DialogDescription>
               {form.status === 'published' 
-                ? 'This will make your form inaccessible to respondents. Existing responses will be kept.'
-                : 'Your form will be accessible at:'
+                ? 'El formulario dejará de estar disponible para responder. Las respuestas existentes se conservarán.'
+                : 'Tu formulario estará disponible en:'
               }
             </DialogDescription>
           </DialogHeader>
@@ -621,7 +679,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowPublishDialog(false)}>
-              Cancel
+              Cancelar
             </Button>
             <Button 
               onClick={handlePublish}
@@ -631,7 +689,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                 : 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20'
               }
             >
-              {isSaving ? 'Saving...' : form.status === 'published' ? 'Unpublish' : 'Publish'}
+              {isSaving ? 'Guardando...' : form.status === 'published' ? 'Despublicar' : 'Publicar'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -679,7 +737,7 @@ function FullScreenPreview({
         className="fixed top-3 right-3 z-[60] shadow-md"
       >
         <X className="w-4 h-4" />
-        Close preview
+        Cerrar vista previa
       </Button>
     </motion.div>
   )

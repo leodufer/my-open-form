@@ -27,7 +27,7 @@ export default function LoginPage() {
       },
     })
     if (error) {
-      toast.error('Failed to sign in with Google')
+      toast.error('No se pudo iniciar sesión con Google')
       setLoadingMethod(null)
     }
   }
@@ -35,7 +35,7 @@ export default function LoginPage() {
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) {
-      toast.error('Please enter your email')
+      toast.error('Por favor ingresá tu correo electrónico')
       return
     }
     
@@ -48,7 +48,7 @@ export default function LoginPage() {
     })
 
     if (error) {
-      toast.error('Failed to send magic link')
+      toast.error('No se pudo enviar el enlace de acceso')
     } else {
       setEmailSent(true)
     }
@@ -66,18 +66,18 @@ export default function LoginPage() {
           <div className="w-12 h-12 mx-auto mb-5 rounded-full bg-blue-50 ring-1 ring-blue-100 flex items-center justify-center">
             <Mail className="w-6 h-6 text-blue-600" />
           </div>
-          <h1 className="text-xl font-semibold text-slate-900 mb-2">Check your email</h1>
+          <h1 className="text-xl font-semibold text-slate-900 mb-2">Revisá tu correo</h1>
           <p className="text-slate-600 mb-6">
-            We&apos;ve sent a magic link to <strong className="text-slate-900">{email}</strong>
+            Enviamos un enlace mágico a <strong className="text-slate-900">{email}</strong>
           </p>
           <p className="text-sm text-slate-500">
-            Click the link in your email to sign in. You can close this tab.
+            Hacé clic en el enlace del correo para ingresar. Podés cerrar esta pestaña.
           </p>
           <button
             onClick={() => setEmailSent(false)}
             className="mt-6 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
           >
-            Use a different email
+            Usar otro correo
           </button>
         </motion.div>
       </div>
@@ -96,8 +96,8 @@ export default function LoginPage() {
           <div className="flex justify-center">
             <Logo href="/" size="lg" />
           </div>
-          <h1 className="mt-6 text-xl font-semibold text-slate-900">Sign in to OpenForm</h1>
-          <p className="mt-1 text-sm text-slate-500">New here? An account is created automatically.</p>
+          <h1 className="mt-6 text-xl font-semibold text-slate-900">Ingresar a OpenForm</h1>
+          <p className="mt-1 text-sm text-slate-500">¿Es tu primera vez? Tu cuenta se crea automáticamente.</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-6 sm:p-8 border border-slate-200">
@@ -129,23 +129,23 @@ export default function LoginPage() {
               />
             </svg>
             )}
-            Continue with Google
+            Continuar con Google
           </Button>
 
           <div className="relative my-6">
             <Separator />
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs uppercase tracking-wider text-slate-400">
-              or
+              o
             </span>
           </div>
 
           <form onSubmit={handleMagicLink} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-700">Email address</Label>
+              <Label htmlFor="email" className="text-slate-700">Correo electrónico</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="tu@ejemplo.com"
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -161,17 +161,17 @@ export default function LoginPage() {
               {loadingMethod === 'email' ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Sending link...
+                  Enviando enlace...
                 </>
               ) : (
-                'Continue with email'
+                'Continuar con correo'
               )}
             </Button>
           </form>
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-500">
-          We&apos;ll email you a magic link for a password-free sign in.
+          Te enviaremos un enlace mágico por correo para ingresar sin contraseña.
         </p>
       </motion.div>
     </div>

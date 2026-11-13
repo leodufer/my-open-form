@@ -64,7 +64,7 @@ export function FormPreview({
             className="text-xl font-semibold mb-2"
             style={{ color: theme.textColor }}
           >
-            {question.title || 'Untitled question'}
+            {question.title || 'Sin título'}
             {question.required && (
               <span style={{ color: theme.primaryColor }} className="ml-1">*</span>
             )}
@@ -81,6 +81,15 @@ export function FormPreview({
 
           {/* Preview of input types */}
           <div className="mt-4">
+            {question.type === 'statement' && (
+              <div
+                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-white"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                {question.buttonText || 'Aceptar'}
+              </div>
+            )}
+
             {(question.type === 'short_text' || question.type === 'email' || 
               question.type === 'phone' || question.type === 'url' || 
               question.type === 'number') && (

@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { Database } from '@/lib/database.types'
+import { getInternalSupabaseFetch } from './internal-fetch'
 
 export async function createClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -15,7 +16,13 @@ export async function createClient() {
 
   const cookieStore = await cookies()
 
+  const internalFetch = getInternalSupabaseFetch(
+    supabaseUrl,
+    process.env.SUPABASE_INTERNAL_URL
+  )
+
   return createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+    ...(internalFetch ? { global: { fetch: internalFetch } } : {}),
     cookies: {
       getAll() {
         return cookieStore.getAll()

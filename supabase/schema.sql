@@ -18,10 +18,24 @@ CREATE TABLE profiles (
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
+-- Collections table
+CREATE TABLE collections (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+
+  UNIQUE(user_id, name)
+);
+
+CREATE INDEX idx_collections_user_id ON collections(user_id);
+
 -- Forms table
 CREATE TABLE forms (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  collection_id UUID REFERENCES collections(id) ON DELETE SET NULL,
   title TEXT NOT NULL DEFAULT 'Untitled Form',
   description TEXT,
   slug TEXT NOT NULL,
@@ -29,6 +43,7 @@ CREATE TABLE forms (
   theme theme_preset DEFAULT 'minimal' NOT NULL,
   questions JSONB DEFAULT '[]'::jsonb NOT NULL,
   thank_you_message TEXT DEFAULT 'Thank you for your response!' NOT NULL,
+  allow_multiple_submissions BOOLEAN DEFAULT FALSE NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   
@@ -40,6 +55,7 @@ CREATE TABLE forms (
 CREATE INDEX idx_forms_slug ON forms(slug);
 CREATE INDEX idx_forms_user_id ON forms(user_id);
 CREATE INDEX idx_forms_status ON forms(status);
+CREATE INDEX idx_forms_collection_id ON forms(collection_id);
 
 -- Responses table
 CREATE TABLE responses (
@@ -57,8 +73,26 @@ CREATE INDEX idx_responses_submitted_at ON responses(submitted_at DESC);
 
 -- Enable RLS
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE collections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE forms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE responses ENABLE ROW LEVEL SECURITY;
+
+-- Collections policies
+CREATE POLICY "Users can view their own collections"
+  ON collections FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own collections"
+  ON collections FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own collections"
+  ON collections FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own collections"
+  ON collections FOR DELETE
+  USING (auth.uid() = user_id);
 
 -- Profiles policies
 CREATE POLICY "Users can view their own profile"
@@ -154,6 +188,11 @@ BEGIN
     full_name = COALESCE(NULLIF(EXCLUDED.full_name, ''), profiles.full_name),
     avatar_url = COALESCE(NULLIF(EXCLUDED.avatar_url, ''), profiles.avatar_url),
     updated_at = NOW();
+
+  INSERT INTO public.collections (user_id, name)
+  VALUES (NEW.id, 'General')
+  ON CONFLICT (user_id, name) DO NOTHING;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -175,6 +214,10 @@ $$ LANGUAGE plpgsql;
 -- Triggers for updated_at
 CREATE TRIGGER update_profiles_updated_at
   BEFORE UPDATE ON profiles
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_collections_updated_at
+  BEFORE UPDATE ON collections
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 CREATE TRIGGER update_forms_updated_at

@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getInternalSupabaseFetch } from './internal-fetch'
 
 export async function updateSession(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -14,7 +15,13 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  const internalFetch = getInternalSupabaseFetch(
+    supabaseUrl,
+    process.env.SUPABASE_INTERNAL_URL
+  )
+
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      ...(internalFetch ? { global: { fetch: internalFetch } } : {}),
       cookies: {
         getAll() {
           return request.cookies.getAll()

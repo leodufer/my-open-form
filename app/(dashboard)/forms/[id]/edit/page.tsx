@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { FormBuilder } from '@/components/form-builder/form-builder'
 import { Form } from '@/lib/database.types'
+import { getUserCollections } from '@/lib/collections'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,12 +19,15 @@ export default async function EditFormPage({ params }: EditFormPageProps) {
     redirect('/login')
   }
 
-  const { data, error } = await supabase
-    .from('forms')
-    .select('*')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
+  const [{ data, error }, { collections }] = await Promise.all([
+    supabase
+      .from('forms')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single(),
+    getUserCollections(supabase, user.id),
+  ])
 
   const form = data as Form | null
 
@@ -31,6 +35,6 @@ export default async function EditFormPage({ params }: EditFormPageProps) {
     notFound()
   }
 
-  return <FormBuilder form={form} />
+  return <FormBuilder form={form} collections={collections} />
 }
 

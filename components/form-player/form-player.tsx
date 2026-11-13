@@ -15,7 +15,9 @@ const AUTO_ADVANCE_DELAY = 350
 type Answers = Record<string, Json>
 
 interface FormPlayerProps {
-  form: Pick<Form, 'id' | 'title' | 'description' | 'questions' | 'theme' | 'thank_you_message'>
+  form: Pick<Form, 'id' | 'title' | 'description' | 'questions' | 'theme' | 'thank_you_message'> & {
+    allow_multiple_submissions?: boolean
+  }
   /** Preview mode never writes a response and offers a restart on the thank-you screen. */
   preview?: boolean
 }
@@ -28,27 +30,29 @@ function isEmptyAnswer(answer: Json | undefined) {
 }
 
 function validateAnswer(question: QuestionConfig, answer: Json | undefined): string | null {
+  if (question.type === 'statement') return null
+
   if (isEmptyAnswer(answer)) {
     if (!question.required) return null
-    return question.type === 'checkboxes' ? 'Please select at least one option' : 'Please fill this in'
+    return question.type === 'checkboxes' ? 'Por favor seleccioná al menos una opción' : 'Por favor completá este campo'
   }
 
   const text = typeof answer === 'string' ? answer.trim() : ''
 
   switch (question.type) {
     case 'email':
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text) ? null : 'Hmm, that email doesn’t look right'
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text) ? null : 'Ese correo electrónico no parece válido'
     case 'url':
       try {
         const url = new URL(/^[a-z][a-z\d+\-.]*:\/\//i.test(text) ? text : `https://${text}`)
-        return url.hostname.includes('.') ? null : 'Please enter a valid URL'
+        return url.hostname.includes('.') ? null : 'Por favor ingresá una URL válida'
       } catch {
-        return 'Please enter a valid URL'
+        return 'Por favor ingresá una URL válida'
       }
     case 'phone':
-      return /^[+]?[\d\s\-().]{6,}$/.test(text) ? null : 'Please enter a valid phone number'
+      return /^[+]?[\d\s\-().]{6,}$/.test(text) ? null : 'Por favor ingresá un número de teléfono válido'
     case 'number':
-      return Number.isFinite(Number(text)) ? null : 'Please enter a number'
+      return Number.isFinite(Number(text)) ? null : 'Por favor ingresá un número válido'
     default:
       return null
   }
@@ -83,6 +87,17 @@ export function FormPlayer({ form, preview = false }: FormPlayerProps) {
   const isLastQuestion = currentIndex === questions.length - 1
   const answeredCount = questions.filter((q) => !isEmptyAnswer(answers[q.id])).length
   const progress = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0
+
+  useEffect(() => {
+    if (preview || form.allow_multiple_submissions) return
+    try {
+      if (localStorage.getItem(`openform_submitted_${form.id}`) === 'true') {
+        setIsSubmitted(true)
+      }
+    } catch {
+      // Ignore storage access errors in restricted contexts
+    }
+  }, [form.id, form.allow_multiple_submissions, preview])
 
   useEffect(() => () => {
     if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current)
@@ -119,11 +134,18 @@ export function FormPlayer({ form, preview = false }: FormPlayerProps) {
     setIsSubmitting(false)
 
     if (insertError) {
-      toast.error('Couldn’t submit your response. Please try again.')
+      toast.error('No se pudo enviar tu respuesta. Por favor intentá de nuevo.')
     } else {
+      if (!form.allow_multiple_submissions) {
+        try {
+          localStorage.setItem(`openform_submitted_${form.id}`, 'true')
+        } catch {
+          // Ignore storage access errors in restricted contexts
+        }
+      }
       setIsSubmitted(true)
     }
-  }, [form.id, goTo, preview, questions])
+  }, [form.allow_multiple_submissions, form.id, goTo, preview, questions])
 
   const goNext = useCallback(() => {
     if (busyRef.current) return
@@ -233,9 +255,9 @@ export function FormPlayer({ form, preview = false }: FormPlayerProps) {
             selected.includes(option) ? selected.filter((v) => v !== option) : [...selected, option]
           )
         }
-      } else if (question.type === 'yes_no' && (key === 'Y' || key === 'N')) {
+      } else if (question.type === 'yes_no' && (key === 'S' || key === 'Y' || key === 'N')) {
         e.preventDefault()
-        selectAndAdvance(question.id, key === 'Y' ? 'Yes' : 'No')
+        selectAndAdvance(question.id, key === 'N' ? 'No' : 'Sí')
       } else if (question.type === 'rating' || question.type === 'opinion_scale') {
         if (!/^\d$/.test(key)) return
         const num = Number(key)
@@ -293,7 +315,7 @@ export function FormPlayer({ form, preview = false }: FormPlayerProps) {
       className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-opacity opacity-60 hover:opacity-100"
       style={{ backgroundColor: `${theme.textColor}0D`, color: theme.textColor }}
     >
-      Made with <span className="font-semibold">OpenForm</span>
+      Creado con <span className="font-semibold">OpenForm</span>
     </a>
   )
 
@@ -302,7 +324,7 @@ export function FormPlayer({ form, preview = false }: FormPlayerProps) {
       className="fixed top-4 left-1/2 -translate-x-1/2 z-50 text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full"
       style={{ backgroundColor: `${theme.textColor}14`, color: theme.textColor }}
     >
-      Preview
+      Vista previa
     </div>
   )
 
@@ -327,15 +349,15 @@ export function FormPlayer({ form, preview = false }: FormPlayerProps) {
             <Check className="w-10 h-10" strokeWidth={2.5} style={{ color: theme.primaryColor }} />
           </motion.div>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-balance">
-            {form.thank_you_message || 'Thank you for your response!'}
+            {form.thank_you_message || '¡Gracias por tu respuesta!'}
           </h1>
           <p className="text-lg opacity-70">
-            {preview ? 'This is a preview, so no response was recorded.' : 'Your response has been recorded.'}
+            {preview ? 'Esto es una vista previa, no se guardó ninguna respuesta.' : 'Tu respuesta fue registrada.'}
           </p>
-          {preview && (
+          {(preview || form.allow_multiple_submissions) && (
             <button type="button" onClick={restart} className={`${primaryButtonClass} mt-8`} style={primaryButtonStyle}>
               <RotateCcw className="w-4 h-4" />
-              Restart preview
+              {preview ? 'Reiniciar vista previa' : 'Completar nuevamente'}
             </button>
           )}
         </motion.div>
@@ -351,7 +373,7 @@ export function FormPlayer({ form, preview = false }: FormPlayerProps) {
         {previewBadge}
         <div className="text-center">
           <h1 className="text-2xl font-semibold mb-2">{form.title}</h1>
-          <p className="opacity-60">This form doesn’t have any questions yet.</p>
+          <p className="opacity-60">Este formulario todavía no tiene preguntas.</p>
         </div>
       </div>
     )
@@ -373,15 +395,15 @@ export function FormPlayer({ form, preview = false }: FormPlayerProps) {
           <p className="text-lg md:text-xl opacity-70 whitespace-pre-line mb-10">{form.description}</p>
           <div className="flex flex-wrap items-center gap-4">
             <button type="button" onClick={start} className={primaryButtonClass} style={primaryButtonStyle} autoFocus>
-              Start
+              Comenzar
               <ArrowRight className="w-4 h-4" />
             </button>
             <span className="text-sm opacity-60 hidden sm:inline">
-              press <kbd className="font-semibold font-[inherit]">Enter ↵</kbd>
+              presioná <kbd className="font-semibold font-[inherit]">Enter ↵</kbd>
             </span>
           </div>
           <p className="mt-6 text-sm opacity-50">
-            {questions.length} question{questions.length === 1 ? '' : 's'} · Takes about {minutes} min
+            {questions.length} {questions.length === 1 ? 'pregunta' : 'preguntas'} · Toma aprox. {minutes} min
           </p>
         </motion.div>
         <div className="fixed bottom-5">{branding}</div>
@@ -399,11 +421,11 @@ export function FormPlayer({ form, preview = false }: FormPlayerProps) {
   const hint =
     currentQuestion.type === 'long_text' ? (
       <>
-        <kbd className="font-semibold font-[inherit]">Shift ⇧ + Enter ↵</kbd> for a new line
+        <kbd className="font-semibold font-[inherit]">Shift ⇧ + Enter ↵</kbd> para nueva línea
       </>
     ) : (
       <>
-        press <kbd className="font-semibold font-[inherit]">Enter ↵</kbd>
+        presioná <kbd className="font-semibold font-[inherit]">Enter ↵</kbd>
       </>
     )
 
@@ -439,20 +461,22 @@ export function FormPlayer({ form, preview = false }: FormPlayerProps) {
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="flex gap-3 md:gap-4">
-                <div
-                  className="flex self-start items-center gap-1 pt-1.5 md:pt-2.5 shrink-0 text-sm md:text-base font-semibold"
-                  style={{ color: theme.primaryColor }}
-                  aria-hidden
-                >
-                  {currentIndex + 1}
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
+                {currentQuestion.type !== 'statement' && (
+                  <div
+                    className="flex self-start items-center gap-1 pt-1.5 md:pt-2.5 shrink-0 text-sm md:text-base font-semibold"
+                    style={{ color: theme.primaryColor }}
+                    aria-hidden
+                  >
+                    {questions.slice(0, currentIndex + 1).filter(q => q.type !== 'statement').length}
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
+                )}
 
                 <div className="flex-1 min-w-0">
                   <h2 className="text-2xl md:text-3xl font-semibold tracking-tight leading-snug text-balance">
-                    {currentQuestion.title || 'Untitled question'}
+                    {currentQuestion.title || 'Sin título'}
                     {currentQuestion.required && (
-                      <span style={{ color: theme.primaryColor }} className="ml-1" aria-label="required">*</span>
+                      <span style={{ color: theme.primaryColor }} className="ml-1" aria-label="obligatoria">*</span>
                     )}
                   </h2>
 
@@ -502,16 +526,21 @@ export function FormPlayer({ form, preview = false }: FormPlayerProps) {
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          Submitting
+                          Enviando
                         </>
                       ) : isLastQuestion ? (
                         <>
-                          Submit
+                          Enviar
                           <Check className="w-4 h-4" strokeWidth={3} />
+                        </>
+                      ) : currentQuestion.type === 'statement' ? (
+                        <>
+                          {currentQuestion.buttonText || 'Aceptar'}
+                          <ArrowRight className="w-4 h-4" />
                         </>
                       ) : (
                         <>
-                          OK
+                          Siguiente
                           <Check className="w-4 h-4" strokeWidth={3} />
                         </>
                       )}

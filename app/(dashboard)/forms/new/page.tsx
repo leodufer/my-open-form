@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { v4 as uuidv4 } from 'uuid'
 import { FormInsert } from '@/lib/database.types'
+import { getUserCollections } from '@/lib/collections'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,6 +19,8 @@ export default async function NewFormPage() {
     redirect('/login')
   }
 
+  const { defaultCollection } = await getUserCollections(supabase, user.id)
+
   // Create a new form
   const formId = uuidv4()
   const slug = generateSlug()
@@ -25,12 +28,13 @@ export default async function NewFormPage() {
   const newForm: FormInsert = {
     id: formId,
     user_id: user.id,
-    title: 'Untitled Form',
+    collection_id: defaultCollection?.id ?? null,
+    title: 'Formulario sin título',
     slug: slug,
     status: 'draft',
     theme: 'minimal',
     questions: [],
-    thank_you_message: 'Thank you for your response!',
+    thank_you_message: '¡Gracias por tu respuesta!',
   }
 
   const { error } = await supabase

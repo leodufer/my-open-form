@@ -13,6 +13,7 @@ import {
   ThumbsUp, 
   Upload, 
   Link,
+  FileText,
   LucideIcon
 } from 'lucide-react'
 
@@ -26,63 +27,72 @@ export interface QuestionTypeInfo {
 
 export const questionTypes: QuestionTypeInfo[] = [
   {
+    type: 'statement',
+    label: 'Texto inicial / Explicación',
+    description: 'Texto informativo con botón aceptar para continuar',
+    icon: FileText,
+    defaultConfig: {
+      buttonText: 'Aceptar',
+    },
+  },
+  {
     type: 'short_text',
-    label: 'Short Text',
-    description: 'A single line text input',
+    label: 'Texto corto',
+    description: 'Campo de texto de una sola línea',
     icon: Type,
     defaultConfig: {
-      placeholder: 'Type your answer here...',
+      placeholder: 'Escribí tu respuesta aquí...',
     },
   },
   {
     type: 'long_text',
-    label: 'Long Text',
-    description: 'A multi-line text area',
+    label: 'Texto largo',
+    description: 'Área de texto de varias líneas',
     icon: AlignLeft,
     defaultConfig: {
-      placeholder: 'Type your answer here...',
+      placeholder: 'Escribí tu respuesta aquí...',
     },
   },
   {
     type: 'dropdown',
-    label: 'Dropdown',
-    description: 'Select one option from a list',
+    label: 'Lista desplegable',
+    description: 'Seleccionar una opción de una lista',
     icon: List,
     defaultConfig: {
-      options: ['Option 1', 'Option 2', 'Option 3'],
+      options: ['Opción 1', 'Opción 2', 'Opción 3'],
     },
   },
   {
     type: 'checkboxes',
-    label: 'Checkboxes',
-    description: 'Select multiple options from a list',
+    label: 'Casillas de verificación',
+    description: 'Seleccionar múltiples opciones de una lista',
     icon: CheckSquare,
     defaultConfig: {
-      options: ['Option 1', 'Option 2', 'Option 3'],
+      options: ['Opción 1', 'Opción 2', 'Opción 3'],
     },
   },
   {
     type: 'email',
-    label: 'Email',
-    description: 'An email address input',
+    label: 'Correo electrónico',
+    description: 'Campo para dirección de correo',
     icon: Mail,
     defaultConfig: {
-      placeholder: 'name@example.com',
+      placeholder: 'nombre@ejemplo.com',
     },
   },
   {
     type: 'phone',
-    label: 'Phone',
-    description: 'A phone number input',
+    label: 'Teléfono',
+    description: 'Campo para número de teléfono',
     icon: Phone,
     defaultConfig: {
-      placeholder: '+1 (555) 000-0000',
+      placeholder: '+54 11 0000-0000',
     },
   },
   {
     type: 'number',
-    label: 'Number',
-    description: 'A numeric input',
+    label: 'Número',
+    description: 'Campo numérico',
     icon: Hash,
     defaultConfig: {
       placeholder: '0',
@@ -90,15 +100,15 @@ export const questionTypes: QuestionTypeInfo[] = [
   },
   {
     type: 'date',
-    label: 'Date',
-    description: 'A date picker',
+    label: 'Fecha',
+    description: 'Selector de fecha',
     icon: Calendar,
     defaultConfig: {},
   },
   {
     type: 'rating',
-    label: 'Rating',
-    description: 'A star rating (1-5)',
+    label: 'Calificación',
+    description: 'Calificación con estrellas (1-5)',
     icon: Star,
     defaultConfig: {
       minValue: 1,
@@ -107,8 +117,8 @@ export const questionTypes: QuestionTypeInfo[] = [
   },
   {
     type: 'opinion_scale',
-    label: 'Opinion Scale',
-    description: 'A numeric scale (1-10)',
+    label: 'Escala de opinión',
+    description: 'Escala numérica (1-10)',
     icon: Gauge,
     defaultConfig: {
       minValue: 1,
@@ -117,15 +127,15 @@ export const questionTypes: QuestionTypeInfo[] = [
   },
   {
     type: 'yes_no',
-    label: 'Yes / No',
-    description: 'A simple yes or no choice',
+    label: 'Sí / No',
+    description: 'Elección simple entre Sí o No',
     icon: ThumbsUp,
     defaultConfig: {},
   },
   {
     type: 'file_upload',
-    label: 'File Upload',
-    description: 'Upload images or PDFs',
+    label: 'Subir archivo',
+    description: 'Subir imágenes o PDFs',
     icon: Upload,
     defaultConfig: {
       allowedFileTypes: ['image/*', 'application/pdf'],
@@ -134,11 +144,11 @@ export const questionTypes: QuestionTypeInfo[] = [
   },
   {
     type: 'url',
-    label: 'Website URL',
-    description: 'A URL input',
+    label: 'Sitio web (URL)',
+    description: 'Campo para dirección web',
     icon: Link,
     defaultConfig: {
-      placeholder: 'https://example.com',
+      placeholder: 'https://ejemplo.com',
     },
   },
 ]
