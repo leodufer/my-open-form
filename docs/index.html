@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,8 +18,15 @@
       --success-soft: #dcfce7;
       --warning-soft: #fefce8;
     }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -26,11 +34,13 @@
       color: var(--text);
       line-height: 1.6;
     }
+
     .layout {
       display: grid;
       grid-template-columns: 280px 1fr;
       min-height: 100vh;
     }
+
     aside {
       position: sticky;
       top: 0;
@@ -40,12 +50,14 @@
       border-right: 1px solid var(--border);
       padding: 24px 18px;
     }
+
     .brand {
       display: flex;
       align-items: center;
       gap: 10px;
       margin-bottom: 6px;
     }
+
     .brand-icon {
       width: 28px;
       height: 28px;
@@ -58,10 +70,28 @@
       font-weight: 700;
       font-size: 14px;
     }
-    .brand-title { font-size: 18px; font-weight: 700; }
-    .subtitle { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
-    nav ul { list-style: none; padding: 0; margin: 0; }
-    nav li { margin-bottom: 4px; }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    nav li {
+      margin-bottom: 4px;
+    }
+
     nav a {
       display: block;
       padding: 7px 10px;
@@ -71,11 +101,17 @@
       font-size: 13.5px;
       font-weight: 500;
     }
-    nav a:hover { background: var(--primary-soft); color: var(--primary); }
+
+    nav a:hover {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
     main {
       max-width: 980px;
       padding: 36px 40px 72px;
     }
+
     header.hero {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -83,8 +119,17 @@
       padding: 28px 32px;
       margin-bottom: 28px;
     }
-    .hero h1 { margin: 0 0 8px; font-size: 28px; }
-    .hero p { margin: 0; color: var(--muted); }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+    }
+
     section {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -92,16 +137,35 @@
       padding: 28px 32px;
       margin-bottom: 24px;
     }
+
     h2 {
       margin: 0 0 12px;
       font-size: 21px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--border);
     }
-    h3 { margin: 20px 0 8px; font-size: 16px; }
-    p { margin: 0 0 12px; color: #1e293b; }
-    ul, ol { margin: 0 0 14px; padding-left: 20px; color: #1e293b; }
-    li { margin-bottom: 6px; }
+
+    h3 {
+      margin: 20px 0 8px;
+      font-size: 16px;
+    }
+
+    p {
+      margin: 0 0 12px;
+      color: #1e293b;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 14px;
+      padding-left: 20px;
+      color: #1e293b;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
     code {
       background: #f1f5f9;
       padding: 2px 6px;
@@ -109,6 +173,7 @@
       font-size: 0.9em;
       color: #0f172a;
     }
+
     .callout {
       border-radius: 10px;
       padding: 14px 16px;
@@ -118,11 +183,13 @@
       background: var(--primary-soft);
       color: #1e3a8a;
     }
+
     .callout.warn {
       border-color: #fde047;
       background: var(--warning-soft);
       color: #713f12;
     }
+
     figure {
       margin: 18px 0;
       border: 1px solid var(--border);
@@ -130,11 +197,13 @@
       overflow: hidden;
       background: #fff;
     }
+
     figure img {
       display: block;
       width: 100%;
       height: auto;
     }
+
     figcaption {
       padding: 10px 14px;
       font-size: 13px;
@@ -142,12 +211,14 @@
       background: #f8fafc;
       border-top: 1px solid var(--border);
     }
+
     .grid-types {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 10px;
       margin: 14px 0;
     }
+
     .type-card {
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -155,7 +226,12 @@
       background: #f8fafc;
       font-size: 13px;
     }
-    .type-card strong { display: block; margin-bottom: 2px; }
+
+    .type-card strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
     .example-box {
       border: 1px solid #bfdbfe;
       border-radius: 10px;
@@ -163,6 +239,7 @@
       background: #f8fafc;
       margin-top: 16px;
     }
+
     .example-header {
       display: flex;
       justify-content: space-between;
@@ -171,6 +248,7 @@
       gap: 10px;
       margin-bottom: 12px;
     }
+
     .btn-link {
       display: inline-block;
       padding: 7px 14px;
@@ -181,6 +259,7 @@
       font-size: 13px;
       font-weight: 600;
     }
+
     iframe.demo-frame {
       width: 100%;
       height: 430px;
@@ -188,25 +267,45 @@
       border-radius: 8px;
       background: #fff;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin: 12px 0;
       font-size: 14px;
     }
-    th, td {
+
+    th,
+    td {
       text-align: left;
       padding: 10px 12px;
       border-bottom: 1px solid var(--border);
     }
-    th { background: #f8fafc; font-weight: 600; }
+
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+    }
+
     @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; }
-      aside { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
-      main { padding: 20px; }
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      main {
+        padding: 20px;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="layout">
     <aside>
@@ -233,50 +332,65 @@
     <main>
       <header class="hero">
         <h1>Manual de Documentación para el Usuario Final</h1>
-        <p>Guía práctica paso a paso para crear formularios, organizarlos en colecciones, reutilizar preguntas y segmentos con trazabilidad de respuestas, compartir recursos y administrar usuarios en OpenForm.</p>
+        <p>Guía práctica paso a paso para crear formularios, organizarlos en colecciones, reutilizar preguntas y
+          segmentos con trazabilidad de respuestas, compartir recursos y administrar usuarios en OpenForm.</p>
       </header>
 
       <section id="introduccion">
         <h2>1. Introducción e inicio de sesión</h2>
-        <p>OpenForm es una plataforma web para diseñar formularios interactivos, recopilar respuestas y consolidar datos entre distintos formularios.</p>
+        <p>OpenForm es una plataforma web para diseñar formularios interactivos, recopilar respuestas y consolidar datos
+          entre distintos formularios.</p>
         <h3>Cómo ingresar al sistema</h3>
         <ol>
           <li>Abrí la aplicación en tu navegador e ingresá a la pantalla de acceso (<code>/login</code>).</li>
           <li>Ingresá tu <strong>correo electrónico</strong> y <strong>contraseña</strong> asignados.</li>
-          <li>Una vez autenticado, el sistema te redirigirá automáticamente a <strong>Mis formularios</strong> (<code>/dashboard</code>).</li>
+          <li>Una vez autenticado, el sistema te redirigirá automáticamente a <strong>Mis formularios</strong>
+            (<code>/dashboard</code>).</li>
         </ol>
         <div class="callout">
-          <strong>Barra de navegación superior:</strong> desde cualquier pantalla del panel podés acceder a <em>Mis formularios</em>, <em>Preguntas</em>, <em>Segmentos</em>, <em>Usuarios</em> (visible únicamente para administradores) y <em>Configuración</em>, además del botón rápido <strong>+ Crear formulario</strong>.
+          <strong>Barra de navegación superior:</strong> desde cualquier pantalla del panel podés acceder a <em>Mis
+            formularios</em>, <em>Preguntas</em>, <em>Segmentos</em>, <em>Usuarios</em> (visible únicamente para
+          administradores) y <em>Configuración</em>, además del botón rápido <strong>+ Crear formulario</strong>.
         </div>
       </section>
 
       <section id="panel-colecciones">
         <h2>2. Panel principal y colecciones</h2>
-        <p>El panel principal (<code>/dashboard</code>) centraliza todos tus formularios y los que otros usuarios compartieron contigo.</p>
+        <p>El panel principal (<code>/dashboard</code>) centraliza todos tus formularios y los que otros usuarios
+          compartieron contigo.</p>
         <figure>
-          <img src="images/01-dashboard-colecciones.svg" alt="Panel principal de OpenForm con filtros de colecciones y tarjetas de formularios" />
-          <figcaption>Figura 1. Vista del panel principal con filtros por colección, formularios compartidos y acciones rápidas.</figcaption>
+          <img src="images/01-dashboard-colecciones.svg"
+            alt="Panel principal de OpenForm con filtros de colecciones y tarjetas de formularios" />
+          <figcaption>Figura 1. Vista del panel principal con filtros por colección, formularios compartidos y acciones
+            rápidas.</figcaption>
         </figure>
         <h3>Organización por colecciones</h3>
         <ul>
           <li><strong>Colección "General":</strong> existe por defecto para agrupar los formularios iniciales.</li>
-          <li><strong>Crear colección:</strong> hacé clic en <strong>+ Nueva colección</strong>, escribí un nombre (por ejemplo, <em>Recursos Humanos</em> o <em>Comercial</em>) y guardá.</li>
-          <li><strong>Filtrar:</strong> usá las píldoras superiores para ver <em>Todos</em>, una colección específica o <em>Compartidos conmigo</em>.</li>
-          <li><strong>Mover o administrar:</strong> desde el menú de cada tarjeta podés cambiar un formulario de colección, duplicar, editar, ver respuestas, compartir o eliminar.</li>
+          <li><strong>Crear colección:</strong> hacé clic en <strong>+ Nueva colección</strong>, escribí un nombre (por
+            ejemplo, <em>Recursos Humanos</em> o <em>Comercial</em>) y guardá.</li>
+          <li><strong>Filtrar:</strong> usá las píldoras superiores para ver <em>Todos</em>, una colección específica o
+            <em>Compartidos conmigo</em>.</li>
+          <li><strong>Mover o administrar:</strong> desde el menú de cada tarjeta podés cambiar un formulario de
+            colección, duplicar, editar, ver respuestas, compartir o eliminar.</li>
         </ul>
       </section>
 
       <section id="formularios">
         <h2>3. Crear y editar formularios</h2>
-        <p>Hacé clic en <strong>+ Crear formulario</strong> (<code>/forms/new</code>) o en <strong>Editar</strong> sobre un formulario existente (<code>/forms/[id]/edit</code>) para abrir el constructor.</p>
+        <p>Hacé clic en <strong>+ Crear formulario</strong> (<code>/forms/new</code>) o en <strong>Editar</strong> sobre
+          un formulario existente (<code>/forms/[id]/edit</code>) para abrir el constructor.</p>
         <figure>
-          <img src="images/02-constructor-formulario.svg" alt="Constructor de formularios con lista de preguntas y diálogo Agregar elemento" />
-          <figcaption>Figura 2. Constructor de formularios: panel izquierdo de preguntas, editor de propiedades y diálogo "Agregar elemento".</figcaption>
+          <img src="images/02-constructor-formulario.svg"
+            alt="Constructor de formularios con lista de preguntas y diálogo Agregar elemento" />
+          <figcaption>Figura 2. Constructor de formularios: panel izquierdo de preguntas, editor de propiedades y
+            diálogo "Agregar elemento".</figcaption>
         </figure>
 
         <h3>Tipos de preguntas disponibles</h3>
         <div class="grid-types">
-          <div class="type-card"><strong>Texto inicial / Explicación</strong>Pantalla informativa con botón aceptar.</div>
+          <div class="type-card"><strong>Texto inicial / Explicación</strong>Pantalla informativa con botón aceptar.
+          </div>
           <div class="type-card"><strong>Texto corto / Texto largo</strong>Campos de una línea o múltiples líneas.</div>
           <div class="type-card"><strong>Lista desplegable</strong>Selección única desde una lista.</div>
           <div class="type-card"><strong>Casillas de verificación</strong>Selección múltiple de opciones.</div>
@@ -298,61 +412,83 @@
         <div class="example-box">
           <div class="example-header">
             <strong>Ejemplo HTML interactivo: cómo responde el usuario final un formulario público</strong>
-            <a class="btn-link" href="ejemplos/ejemplo-formulario-publico.html" target="_blank">Abrir ejemplo en pestaña nueva ↗</a>
+            <a class="btn-link" href="ejemplos/ejemplo-formulario-publico.html" target="_blank">Abrir ejemplo en pestaña
+              nueva ↗</a>
           </div>
-          <iframe class="demo-frame" src="ejemplos/ejemplo-formulario-publico.html" title="Ejemplo interactivo de formulario público"></iframe>
+          <iframe class="demo-frame" src="ejemplos/ejemplo-formulario-publico.html"
+            title="Ejemplo interactivo de formulario público"></iframe>
         </div>
       </section>
 
       <section id="preguntas-reutilizables">
         <h2>4. Preguntas reutilizables</h2>
-        <p>En la sección <strong>Preguntas</strong> (<code>/questions</code>) podés crear una biblioteca de preguntas estandarizadas para usarlas en múltiples formularios sin tener que reescribirlas.</p>
+        <p>En la sección <strong>Preguntas</strong> (<code>/questions</code>) podés crear una biblioteca de preguntas
+          estandarizadas para usarlas en múltiples formularios sin tener que reescribirlas.</p>
         <ol>
           <li>Ingresá a <strong>Preguntas</strong> y presioná <strong>+ Nueva pregunta</strong>.</li>
           <li>Elegí el tipo de pregunta, título, descripción, opciones y si es obligatoria.</li>
-          <li>Al editar cualquier formulario, abrí <strong>+ Agregar elemento</strong> y seleccioná la pestaña <strong>Pregunta reutilizable</strong> para insertarla.</li>
-          <li>En la tarjeta de cada pregunta reutilizable verás en qué formularios se utiliza y el total de respuestas acumuladas.</li>
+          <li>Al editar cualquier formulario, abrí <strong>+ Agregar elemento</strong> y seleccioná la pestaña
+            <strong>Pregunta reutilizable</strong> para insertarla.</li>
+          <li>En la tarjeta de cada pregunta reutilizable verás en qué formularios se utiliza y el total de respuestas
+            acumuladas.</li>
         </ol>
       </section>
 
       <section id="segmentos-reutilizables">
         <h2>5. Segmentos de preguntas reutilizables</h2>
-        <p>Los <strong>Segmentos</strong> (<code>/segments</code>) permiten agrupar varias preguntas relacionadas (por ejemplo, <em>Datos de contacto</em> o <em>Encuesta de satisfacción</em>) en un bloque reutilizable.</p>
+        <p>Los <strong>Segmentos</strong> (<code>/segments</code>) permiten agrupar varias preguntas relacionadas (por
+          ejemplo, <em>Datos de contacto</em> o <em>Encuesta de satisfacción</em>) en un bloque reutilizable.</p>
         <ul>
-          <li><strong>Edición en página completa:</strong> al crear (<code>/segments/new</code>) o editar (<code>/segments/[id]/edit</code>) un segmento se abre un editor amplio de página completa.</li>
-          <li><strong>Importar o crear preguntas:</strong> dentro del segmento podés crear preguntas nuevas o importar preguntas existentes desde tu biblioteca de <em>Preguntas reutilizables</em>.</li>
-          <li><strong>Inserción en formularios:</strong> desde el constructor de formularios, elegí <strong>+ Agregar elemento → Segmento reutilizable</strong> para insertar todas las preguntas del bloque manteniendo su trazabilidad.</li>
+          <li><strong>Edición en página completa:</strong> al crear (<code>/segments/new</code>) o editar
+            (<code>/segments/[id]/edit</code>) un segmento se abre un editor amplio de página completa.</li>
+          <li><strong>Importar o crear preguntas:</strong> dentro del segmento podés crear preguntas nuevas o importar
+            preguntas existentes desde tu biblioteca de <em>Preguntas reutilizables</em>.</li>
+          <li><strong>Inserción en formularios:</strong> desde el constructor de formularios, elegí <strong>+ Agregar
+              elemento → Segmento reutilizable</strong> para insertar todas las preguntas del bloque manteniendo su
+            trazabilidad.</li>
         </ul>
       </section>
 
       <section id="trazabilidad">
         <h2>6. Trazabilidad y visualización de respuestas</h2>
-        <p>Tanto los formularios como las preguntas reutilizables y segmentos ofrecen una vista completa de respuestas:</p>
+        <p>Tanto los formularios como las preguntas reutilizables y segmentos ofrecen una vista completa de respuestas:
+        </p>
         <figure>
-          <img src="images/03-preguntas-segmentos-trazabilidad.svg" alt="Esquema de trazabilidad de preguntas y segmentos reutilizables hacia respuestas consolidadas" />
-          <figcaption>Figura 3. Trazabilidad: las respuestas enviadas en distintos formularios se consolidan identificando el formulario de origen.</figcaption>
+          <img src="images/03-preguntas-segmentos-trazabilidad.svg"
+            alt="Esquema de trazabilidad de preguntas y segmentos reutilizables hacia respuestas consolidadas" />
+          <figcaption>Figura 3. Trazabilidad: las respuestas enviadas en distintos formularios se consolidan
+            identificando el formulario de origen.</figcaption>
         </figure>
         <ul>
-          <li><strong>Respuestas de un formulario:</strong> en <code>/forms/[id]/responses</code> podés consultar todas las respuestas recibidas y exportarlas a CSV.</li>
-          <li><strong>Respuestas de una pregunta reutilizable:</strong> en <code>/questions/[id]/responses</code> se listan todas las respuestas obtenidas en todos los formularios donde se insertó esa pregunta, indicando explícitamente el <strong>formulario de origen</strong> y su <strong>colección</strong>.</li>
-          <li><strong>Respuestas de un segmento:</strong> en <code>/segments/[id]/responses</code> se visualizan las respuestas consolidadas del bloque con filtro por formulario de origen.</li>
+          <li><strong>Respuestas de un formulario:</strong> en <code>/forms/[id]/responses</code> podés consultar todas
+            las respuestas recibidas y exportarlas a CSV.</li>
+          <li><strong>Respuestas de una pregunta reutilizable:</strong> en <code>/questions/[id]/responses</code> se
+            listan todas las respuestas obtenidas en todos los formularios donde se insertó esa pregunta, indicando
+            explícitamente el <strong>formulario de origen</strong> y su <strong>colección</strong>.</li>
+          <li><strong>Respuestas de un segmento:</strong> en <code>/segments/[id]/responses</code> se visualizan las
+            respuestas consolidadas del bloque con filtro por formulario de origen.</li>
         </ul>
 
         <div class="example-box">
           <div class="example-header">
             <strong>Ejemplo HTML interactivo: tabla consolidada con trazabilidad por formulario</strong>
-            <a class="btn-link" href="ejemplos/ejemplo-trazabilidad-respuestas.html" target="_blank">Abrir ejemplo en pestaña nueva ↗</a>
+            <a class="btn-link" href="ejemplos/ejemplo-trazabilidad-respuestas.html" target="_blank">Abrir ejemplo en
+              pestaña nueva ↗</a>
           </div>
-          <iframe class="demo-frame" src="ejemplos/ejemplo-trazabilidad-respuestas.html" title="Ejemplo interactivo de trazabilidad de respuestas"></iframe>
+          <iframe class="demo-frame" src="ejemplos/ejemplo-trazabilidad-respuestas.html"
+            title="Ejemplo interactivo de trazabilidad de respuestas"></iframe>
         </div>
       </section>
 
       <section id="compartir">
         <h2>7. Compartir formularios, preguntas y segmentos</h2>
-        <p>Los propietarios pueden compartir sus formularios, preguntas reutilizables y segmentos con otros usuarios registrados en el sistema mediante el botón <strong>Compartir</strong>.</p>
+        <p>Los propietarios pueden compartir sus formularios, preguntas reutilizables y segmentos con otros usuarios
+          registrados en el sistema mediante el botón <strong>Compartir</strong>.</p>
         <figure>
-          <img src="images/04-compartir-recurso.svg" alt="Ventana modal para compartir recursos con permisos Solo ver o Editable" />
-          <figcaption>Figura 4. Modal Compartir: invitación por correo electrónico, selección de permiso y revocación de acceso.</figcaption>
+          <img src="images/04-compartir-recurso.svg"
+            alt="Ventana modal para compartir recursos con permisos Solo ver o Editable" />
+          <figcaption>Figura 4. Modal Compartir: invitación por correo electrónico, selección de permiso y revocación de
+            acceso.</figcaption>
         </figure>
         <table>
           <thead>
@@ -364,42 +500,55 @@
           <tbody>
             <tr>
               <td><strong>Solo ver</strong></td>
-              <td>Ver el formulario o recurso compartido, consultar sus respuestas e insertar preguntas/segmentos compartidos en sus propios formularios.</td>
+              <td>Ver el formulario o recurso compartido, consultar sus respuestas e insertar preguntas/segmentos
+                compartidos en sus propios formularios.</td>
             </tr>
             <tr>
               <td><strong>Editable</strong></td>
-              <td>Todo lo anterior más editar el contenido y configuración del formulario, pregunta reutilizable o segmento compartido.</td>
+              <td>Todo lo anterior más editar el contenido y configuración del formulario, pregunta reutilizable o
+                segmento compartido.</td>
             </tr>
           </tbody>
         </table>
-        <p>En cualquier momento, el propietario puede cambiar el nivel de permiso o hacer clic en <strong>Quitar</strong> para revocar el acceso.</p>
+        <p>En cualquier momento, el propietario puede cambiar el nivel de permiso o hacer clic en
+          <strong>Quitar</strong> para revocar el acceso.</p>
       </section>
 
       <section id="usuarios-config">
         <h2>8. Configuración de cuenta y gestión de usuarios</h2>
         <h3>Mi cuenta (<code>/settings</code>)</h3>
-        <p>Todos los usuarios pueden acceder a <strong>Configuración</strong> para actualizar su información de perfil y cambiar su contraseña personal.</p>
+        <p>Todos los usuarios pueden acceder a <strong>Configuración</strong> para actualizar su información de perfil y
+          cambiar su contraseña personal.</p>
 
         <h3>Gestión de usuarios (<code>/users</code> — Solo Administradores)</h3>
         <figure>
           <img src="images/05-gestion-usuarios.svg" alt="Panel de gestión de usuarios exclusivo para administradores" />
-          <figcaption>Figura 5. Panel de administración de usuarios para crear cuentas con correo y contraseña y gestionar roles.</figcaption>
+          <figcaption>Figura 5. Panel de administración de usuarios para crear cuentas con correo y contraseña y
+            gestionar roles.</figcaption>
         </figure>
         <div class="callout warn">
-          <strong>Control de acceso por rol:</strong> únicamente los usuarios con rol <strong>Administrador</strong> (como <code>leodufer@gmail.com</code>) pueden acceder a <code>/users</code> para crear nuevas cuentas con correo y contraseña o administrar otros usuarios. Los usuarios estándar solo gestionan su propia cuenta en <code>/settings</code>.
+          <strong>Control de acceso por rol:</strong> únicamente los usuarios con rol <strong>Administrador</strong>
+          (como <code>leodufer@gmail.com</code>) pueden acceder a <code>/users</code> para crear nuevas cuentas con
+          correo y contraseña o administrar otros usuarios. Los usuarios estándar solo gestionan su propia cuenta en
+          <code>/settings</code>.
         </div>
       </section>
 
       <section id="licencia">
         <h2>9. Licenciamiento y créditos</h2>
-        <p>El uso y distribución de esta aplicación se rige por los términos establecidos en el archivo <code>EULA.txt</code> ubicado en la raíz del proyecto.</p>
+        <p>El uso y distribución de esta aplicación se rige por los términos establecidos en el archivo
+          <code>EULA.txt</code> ubicado en la raíz del proyecto.</p>
         <ul>
-          <li><strong>Proyecto base:</strong> desarrollado sobre la base del proyecto de código abierto <em>opencode</em> (<code>https://github.com/dabit3/openform</code>), licenciado bajo los términos de la <strong>Licencia MIT</strong>.</li>
-          <li><strong>Nuevas funcionalidades y sistema integrado:</strong> los derechos de propiedad intelectual y distribución sobre las nuevas funcionalidades desarrolladas y el sistema integrado quedan reservados a su creador conforme al acuerdo <code>EULA.txt</code>.</li>
+          <li><strong>Proyecto base:</strong> desarrollado sobre la base del proyecto de código abierto
+            <em>openform</em> (<code>https://github.com/dabit3/openform</code>), licenciado bajo los términos de la
+            <strong>Licencia MIT</strong>.</li>
+          <li><strong>Nuevas funcionalidades y sistema integrado:</strong> los derechos de propiedad intelectual y
+            distribución sobre las nuevas funcionalidades desarrolladas y el sistema integrado quedan reservados a su
+            creador conforme al acuerdo <code>EULA.txt</code>.</li>
         </ul>
       </section>
     </main>
   </div>
 </body>
-</html>
 
+</html>
