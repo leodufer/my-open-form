@@ -12,8 +12,8 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, ExternalLink, BarChart3, Pencil, Copy, ListChecks, Folder, Check } from 'lucide-react'
-import { Form, Collection, FormStatus, QuestionConfig } from '@/lib/database.types'
+import { MoreHorizontal, ExternalLink, BarChart3, Pencil, Copy, ListChecks, Folder, Check, Share2, Users } from 'lucide-react'
+import { Form, Collection, FormStatus, QuestionConfig, SharePermission } from '@/lib/database.types'
 import { getTheme } from '@/lib/themes'
 import { DeleteFormButton } from './delete-form-button'
 import { toast } from 'sonner'
@@ -24,6 +24,9 @@ interface FormCardProps {
   collections?: Collection[]
   collectionName?: string
   onMoveToCollection?: (formId: string, collectionId: string) => void
+  isShared?: boolean
+  sharePermission?: SharePermission
+  onShare?: (form: Form) => void
 }
 
 const statusStyles: Record<FormStatus, { label: string; dot: string; text: string }> = {
@@ -55,10 +58,15 @@ export function FormCard({
   collections = [],
   collectionName,
   onMoveToCollection,
+  isShared = false,
+  sharePermission,
+  onShare,
 }: FormCardProps) {
   const theme = getTheme(form.theme)
   const status = statusStyles[form.status]
   const questionCount = ((form.questions as QuestionConfig[]) || []).length
+  const canEdit = !isShared || sharePermission === 'edit'
+  const primaryHref = canEdit ? `/forms/${form.id}/edit` : `/forms/${form.id}/responses`
 
   const copyFormLink = async () => {
     try {
@@ -73,10 +81,10 @@ export function FormCard({
     <div className="group relative flex flex-col rounded-xl border border-slate-200 bg-white shadow-xs transition-all duration-200 hover:border-slate-300 hover:shadow-md">
       {/* Theme preview */}
       <Link
-        href={`/forms/${form.id}/edit`}
+        href={primaryHref}
         className="relative block h-28 overflow-hidden rounded-t-xl"
         style={{ backgroundColor: theme.backgroundColor, fontFamily: theme.fontFamily }}
-        aria-label={`Editar ${form.title || 'Formulario sin título'}`}
+        aria-label={`${canEdit ? 'Editar' : 'Ver respuestas de'} ${form.title || 'Formulario sin título'}`}
       >
         <div className="absolute inset-x-5 top-5">
           <div className="text-[11px] font-semibold mb-1.5" style={{ color: theme.primaryColor }}>
@@ -92,7 +100,7 @@ export function FormCard({
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <Link
-              href={`/forms/${form.id}/edit`}
+              href={primaryHref}
               className="block truncate font-semibold text-slate-900 transition-colors hover:text-blue-600"
             >
               {form.title || 'Formulario sin título'}
@@ -106,18 +114,26 @@ export function FormCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuItem asChild>
-                <Link href={`/forms/${form.id}/edit`} className="cursor-pointer">
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Editar
-                </Link>
-              </DropdownMenuItem>
+              {canEdit && (
+                <DropdownMenuItem asChild>
+                  <Link href={`/forms/${form.id}/edit`} className="cursor-pointer">
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Editar
+                  </Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem asChild>
                 <Link href={`/forms/${form.id}/responses`} className="cursor-pointer">
                   <BarChart3 className="mr-2 h-4 w-4" />
                   Respuestas
                 </Link>
               </DropdownMenuItem>
+              {!isShared && onShare && (
+                <DropdownMenuItem onClick={() => onShare(form)} className="cursor-pointer">
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Compartir
+                </DropdownMenuItem>
+              )}
               {form.status === 'published' && (
                 <>
                   <DropdownMenuItem asChild>
@@ -132,7 +148,7 @@ export function FormCard({
                   </DropdownMenuItem>
                 </>
               )}
-              {collections.length > 0 && onMoveToCollection && (
+              {!isShared && collections.length > 0 && onMoveToCollection && (
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="cursor-pointer">
                     <Folder className="mr-2 h-4 w-4" />
@@ -155,8 +171,12 @@ export function FormCard({
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
               )}
-              <DropdownMenuSeparator />
-              <DeleteFormButton formId={form.id} formTitle={form.title} />
+              {!isShared && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DeleteFormButton formId={form.id} formTitle={form.title} />
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -177,7 +197,13 @@ export function FormCard({
             <BarChart3 className="h-3.5 w-3.5" />
             {plural(responseCount, 'respuesta')}
           </Link>
-          {collectionName && (
+          {isShared && (
+            <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-blue-700 font-medium">
+              <Users className="h-3 w-3" />
+              Compartido ({sharePermission === 'view' ? 'Solo ver' : 'Editable'})
+            </span>
+          )}
+          {!isShared && collectionName && (
             <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-slate-600">
               <Folder className="h-3 w-3" />
               {collectionName}

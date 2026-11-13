@@ -9,7 +9,9 @@ import {
   QuestionConfig,
   QuestionSegment,
   Response as FormResponse,
+  SharePermission,
 } from '@/lib/database.types'
+import { ShareResourceDialog } from '@/components/sharing/share-resource-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -30,17 +32,23 @@ import {
   Pencil,
   Plus,
   Search,
+  Share2,
   Trash2,
+  Users,
 } from 'lucide-react'
 
 interface SegmentsManagerProps {
+  userId: string
   initialSegments: QuestionSegment[]
+  sharedPermissions?: Record<string, SharePermission>
   forms: Pick<Form, 'id' | 'title' | 'slug' | 'status' | 'questions' | 'collection_id'>[]
   responses: Pick<FormResponse, 'id' | 'form_id' | 'answers' | 'submitted_at'>[]
 }
 
 export function SegmentsManager({
+  userId,
   initialSegments,
+  sharedPermissions = {},
   forms,
   responses,
 }: SegmentsManagerProps) {
@@ -49,6 +57,7 @@ export function SegmentsManager({
   const [searchQuery, setSearchQuery] = useState('')
   const [deleteTarget, setDeleteTarget] = useState<QuestionSegment | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [shareTarget, setShareTarget] = useState<QuestionSegment | null>(null)
 
   // Compute usage (forms) and response counts per segmentId
   const usageBySegmentId = useMemo(() => {
@@ -200,36 +209,62 @@ export function SegmentsManager({
             const usedInForms = usage?.forms || []
             const totalResponses = usage?.responseCount || 0
 
+            const isOwner = seg.user_id === userId
+            const canEdit = isOwner || sharedPermissions[seg.id] === 'edit'
+
             return (
               <Card key={seg.id} className="bg-white border-slate-200 flex flex-col justify-between">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
-                    <Badge variant="secondary" className="gap-1.5 font-normal">
-                      <Layers className="w-3.5 h-3.5 text-blue-600" />
-                      {segQuestions.length}{' '}
-                      {segQuestions.length === 1 ? 'pregunta' : 'preguntas'}
-                    </Badge>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="secondary" className="gap-1.5 font-normal">
+                        <Layers className="w-3.5 h-3.5 text-blue-600" />
+                        {segQuestions.length}{' '}
+                        {segQuestions.length === 1 ? 'pregunta' : 'preguntas'}
+                      </Badge>
+                      {!isOwner && (
+                        <Badge variant="outline" className="gap-1 text-blue-700 border-blue-200 bg-blue-50">
+                          <Users className="w-3 h-3" />
+                          Compartido ({sharedPermissions[seg.id] === 'edit' ? 'Editable' : 'Solo ver'})
+                        </Badge>
+                      )}
+                    </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        title="Editar"
-                        asChild
-                      >
-                        <Link href={`/segments/${seg.id}/edit`}>
-                          <Pencil className="w-4 h-4 text-slate-500" />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 hover:text-red-600"
-                        title="Eliminar"
-                        onClick={() => setDeleteTarget(seg)}
-                      >
-                        <Trash2 className="w-4 h-4 text-slate-500" />
-                      </Button>
+                      {isOwner && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          title="Compartir"
+                          onClick={() => setShareTarget(seg)}
+                        >
+                          <Share2 className="w-4 h-4 text-slate-500" />
+                        </Button>
+                      )}
+                      {canEdit && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          title="Editar"
+                          asChild
+                        >
+                          <Link href={`/segments/${seg.id}/edit`}>
+                            <Pencil className="w-4 h-4 text-slate-500" />
+                          </Link>
+                        </Button>
+                      )}
+                      {isOwner && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 hover:text-red-600"
+                          title="Eliminar"
+                          onClick={() => setDeleteTarget(seg)}
+                        >
+                          <Trash2 className="w-4 h-4 text-slate-500" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                   <CardTitle className="text-lg text-slate-900 mt-2">{seg.name}</CardTitle>
@@ -319,6 +354,14 @@ export function SegmentsManager({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ShareResourceDialog
+        open={!!shareTarget}
+        onOpenChange={(open) => !open && setShareTarget(null)}
+        resourceType="question_segment"
+        resourceId={shareTarget?.id ?? ''}
+        resourceTitle={shareTarget?.name ?? ''}
+      />
     </div>
   )
 }

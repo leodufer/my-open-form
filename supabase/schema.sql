@@ -60,6 +60,23 @@ CREATE TABLE question_segments (
 
 CREATE INDEX idx_question_segments_user_id ON question_segments(user_id);
 
+-- Resource shares table (share forms, reusable questions, and question segments with other users)
+CREATE TABLE resource_shares (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  resource_type TEXT NOT NULL CHECK (resource_type IN ('form', 'reusable_question', 'question_segment')),
+  resource_id UUID NOT NULL,
+  owner_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  shared_with_user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  permission TEXT NOT NULL DEFAULT 'edit' CHECK (permission IN ('view', 'edit')),
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+
+  UNIQUE(resource_type, resource_id, shared_with_user_id)
+);
+
+CREATE INDEX idx_resource_shares_resource ON resource_shares(resource_type, resource_id);
+CREATE INDEX idx_resource_shares_shared_with ON resource_shares(shared_with_user_id);
+CREATE INDEX idx_resource_shares_owner ON resource_shares(owner_id);
+
 -- Forms table
 CREATE TABLE forms (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -105,6 +122,7 @@ ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE collections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reusable_questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE question_segments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE resource_shares ENABLE ROW LEVEL SECURITY;
 ALTER TABLE forms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE responses ENABLE ROW LEVEL SECURITY;
 
@@ -159,6 +177,70 @@ CREATE POLICY "Users can delete their own question segments"
   ON question_segments FOR DELETE
   USING (auth.uid() = user_id);
 
+-- Shared access policies for reusable questions and segments
+CREATE POLICY "Users can view shared reusable questions"
+  ON reusable_questions FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM resource_shares rs
+      WHERE rs.resource_type = 'reusable_question'
+      AND rs.resource_id = reusable_questions.id
+      AND rs.shared_with_user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update shared reusable questions with edit permission"
+  ON reusable_questions FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM resource_shares rs
+      WHERE rs.resource_type = 'reusable_question'
+      AND rs.resource_id = reusable_questions.id
+      AND rs.shared_with_user_id = auth.uid()
+      AND rs.permission = 'edit'
+    )
+  );
+
+CREATE POLICY "Users can view shared question segments"
+  ON question_segments FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM resource_shares rs
+      WHERE rs.resource_type = 'question_segment'
+      AND rs.resource_id = question_segments.id
+      AND rs.shared_with_user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update shared question segments with edit permission"
+  ON question_segments FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM resource_shares rs
+      WHERE rs.resource_type = 'question_segment'
+      AND rs.resource_id = question_segments.id
+      AND rs.shared_with_user_id = auth.uid()
+      AND rs.permission = 'edit'
+    )
+  );
+
+-- Resource shares policies
+CREATE POLICY "Users can view shares they own or received"
+  ON resource_shares FOR SELECT
+  USING (auth.uid() = owner_id OR auth.uid() = shared_with_user_id);
+
+CREATE POLICY "Owners can create shares"
+  ON resource_shares FOR INSERT
+  WITH CHECK (auth.uid() = owner_id);
+
+CREATE POLICY "Owners can update shares"
+  ON resource_shares FOR UPDATE
+  USING (auth.uid() = owner_id);
+
+CREATE POLICY "Owners or recipients can delete shares"
+  ON resource_shares FOR DELETE
+  USING (auth.uid() = owner_id OR auth.uid() = shared_with_user_id);
+
 -- Profiles policies
 CREATE POLICY "Users can view their own profile"
   ON profiles FOR SELECT
@@ -194,6 +276,30 @@ CREATE POLICY "Anyone can view published forms"
   ON forms FOR SELECT
   USING (status = 'published');
 
+-- Shared forms policies
+CREATE POLICY "Users can view shared forms"
+  ON forms FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM resource_shares rs
+      WHERE rs.resource_type = 'form'
+      AND rs.resource_id = forms.id
+      AND rs.shared_with_user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update shared forms with edit permission"
+  ON forms FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM resource_shares rs
+      WHERE rs.resource_type = 'form'
+      AND rs.resource_id = forms.id
+      AND rs.shared_with_user_id = auth.uid()
+      AND rs.permission = 'edit'
+    )
+  );
+
 -- Responses policies
 CREATE POLICY "Form owners can view responses"
   ON responses FOR SELECT
@@ -201,7 +307,15 @@ CREATE POLICY "Form owners can view responses"
     EXISTS (
       SELECT 1 FROM forms 
       WHERE forms.id = responses.form_id 
-      AND forms.user_id = auth.uid()
+      AND (
+        forms.user_id = auth.uid()
+        OR EXISTS (
+          SELECT 1 FROM resource_shares rs
+          WHERE rs.resource_type = 'form'
+          AND rs.resource_id = forms.id
+          AND rs.shared_with_user_id = auth.uid()
+        )
+      )
     )
   );
 
@@ -211,7 +325,16 @@ CREATE POLICY "Form owners can delete responses"
     EXISTS (
       SELECT 1 FROM forms 
       WHERE forms.id = responses.form_id 
-      AND forms.user_id = auth.uid()
+      AND (
+        forms.user_id = auth.uid()
+        OR EXISTS (
+          SELECT 1 FROM resource_shares rs
+          WHERE rs.resource_type = 'form'
+          AND rs.resource_id = forms.id
+          AND rs.shared_with_user_id = auth.uid()
+          AND rs.permission = 'edit'
+        )
+      )
     )
   );
 

@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { QuestionSegment, ReusableQuestion } from '@/lib/database.types'
+import { QuestionSegment, ResourceShare, ReusableQuestion } from '@/lib/database.types'
 import { SegmentEditor } from '@/components/segments/segment-editor'
 
 export const dynamic = 'force-dynamic'
@@ -25,12 +25,10 @@ export default async function EditSegmentPage({ params }: EditSegmentPageProps) 
       .from('question_segments')
       .select('*')
       .eq('id', id)
-      .eq('user_id', user.id)
       .single(),
     supabase
       .from('reusable_questions')
       .select('*')
-      .eq('user_id', user.id)
       .order('created_at', { ascending: false }),
   ])
 
@@ -39,6 +37,24 @@ export default async function EditSegmentPage({ params }: EditSegmentPageProps) 
 
   if (segmentError || !segment) {
     notFound()
+  }
+
+  if (segment.user_id !== user.id) {
+    const { data: shareData } = await supabase
+      .from('resource_shares')
+      .select('permission')
+      .eq('resource_type', 'question_segment')
+      .eq('resource_id', id)
+      .eq('shared_with_user_id', user.id)
+      .single()
+
+    const share = shareData as Pick<ResourceShare, 'permission'> | null
+    if (!share) {
+      notFound()
+    }
+    if (share.permission !== 'edit') {
+      redirect(`/segments/${id}/responses`)
+    }
   }
 
   return (

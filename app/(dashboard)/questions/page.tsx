@@ -1,7 +1,12 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUserCollections } from '@/lib/collections'
-import { Form, Response as FormResponse, ReusableQuestion } from '@/lib/database.types'
+import {
+  Form,
+  Response as FormResponse,
+  ReusableQuestion,
+  SharePermission,
+} from '@/lib/database.types'
 import { ReusableQuestionsManager } from '@/components/questions/reusable-questions-manager'
 
 export const dynamic = 'force-dynamic'
@@ -16,19 +21,45 @@ export default async function ReusableQuestionsPage() {
     redirect('/login')
   }
 
-  const [{ data: reusableData }, { data: formsData }, { collections }] = await Promise.all([
+  const [{ data: reusableData }, { data: sharesData }, { collections }] = await Promise.all([
     supabase
       .from('reusable_questions')
       .select('*')
-      .eq('user_id', user.id)
       .order('created_at', { ascending: false }),
     supabase
-      .from('forms')
-      .select('id, title, slug, status, questions, collection_id')
-      .eq('user_id', user.id)
-      .order('updated_at', { ascending: false }),
+      .from('resource_shares')
+      .select('resource_type, resource_id, permission')
+      .eq('shared_with_user_id', user.id),
     getUserCollections(supabase, user.id),
   ])
+
+  const sharedQuestionPermissions: Record<string, SharePermission> = {}
+  const sharedFormIds: string[] = []
+
+  for (const s of (sharesData as {
+    resource_type: string
+    resource_id: string
+    permission: SharePermission
+  }[] | null) || []) {
+    if (s.resource_type === 'reusable_question') {
+      sharedQuestionPermissions[s.resource_id] = s.permission
+    } else if (s.resource_type === 'form') {
+      sharedFormIds.push(s.resource_id)
+    }
+  }
+
+  let formsQuery = supabase
+    .from('forms')
+    .select('id, title, slug, status, questions, collection_id')
+    .order('updated_at', { ascending: false })
+
+  if (sharedFormIds.length > 0) {
+    formsQuery = formsQuery.or(`user_id.eq.${user.id},id.in.(${sharedFormIds.join(',')})`)
+  } else {
+    formsQuery = formsQuery.eq('user_id', user.id)
+  }
+
+  const { data: formsData } = await formsQuery
 
   const reusableQuestions = (reusableData as ReusableQuestion[] | null) ?? []
   const forms =
@@ -58,8 +89,8 @@ export default async function ReusableQuestionsPage() {
         forms={forms}
         collections={collections}
         responses={responses}
+        sharedPermissions={sharedQuestionPermissions}
       />
     </div>
   )
 }
-

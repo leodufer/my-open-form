@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Plus, FileText, Globe, BarChart3 } from 'lucide-react'
-import { Form } from '@/lib/database.types'
+import { Form, SharePermission } from '@/lib/database.types'
 import { getUserCollections } from '@/lib/collections'
 import { CollectionsDashboard } from '@/components/dashboard/collections-dashboard'
 
@@ -12,15 +12,34 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
-  const [{ data: formsData }, { collections, defaultCollection }] = await Promise.all([
+  const [{ data: sharesData }, { collections, defaultCollection }] = await Promise.all([
     supabase
-      .from('forms')
-      .select('*')
-      .eq('user_id', user!.id)
-      .order('updated_at', { ascending: false }),
+      .from('resource_shares')
+      .select('resource_id, permission')
+      .eq('shared_with_user_id', user!.id)
+      .eq('resource_type', 'form'),
     getUserCollections(supabase, user!.id),
   ])
 
+  const sharedFormPermissions: Record<string, SharePermission> = {}
+  const sharedFormIds: string[] = []
+  for (const s of (sharesData as { resource_id: string; permission: SharePermission }[] | null) || []) {
+    sharedFormPermissions[s.resource_id] = s.permission
+    sharedFormIds.push(s.resource_id)
+  }
+
+  let formsQuery = supabase
+    .from('forms')
+    .select('*')
+    .order('updated_at', { ascending: false })
+
+  if (sharedFormIds.length > 0) {
+    formsQuery = formsQuery.or(`user_id.eq.${user!.id},id.in.(${sharedFormIds.join(',')})`)
+  } else {
+    formsQuery = formsQuery.eq('user_id', user!.id)
+  }
+
+  const { data: formsData } = await formsQuery
   const forms = (formsData || []) as Form[]
 
   // Get response counts for each form
@@ -82,6 +101,7 @@ export default async function DashboardPage() {
         defaultCollectionId={defaultCollection.id}
         responseCounts={responseCounts}
         userId={user!.id}
+        sharedFormPermissions={sharedFormPermissions}
       />
     </div>
   )

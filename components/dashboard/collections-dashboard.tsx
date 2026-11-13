@@ -4,9 +4,10 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Collection, Form } from '@/lib/database.types'
+import { Collection, Form, SharePermission } from '@/lib/database.types'
 import { DEFAULT_COLLECTION_NAME } from '@/lib/collections'
 import { FormCard } from './form-card'
+import { ShareResourceDialog } from '@/components/sharing/share-resource-dialog'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -19,7 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { FileText, FolderPlus, Folder, Plus, Trash2 } from 'lucide-react'
+import { FileText, FolderPlus, Folder, Plus, Trash2, Users } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface CollectionsDashboardProps {
@@ -28,6 +29,7 @@ interface CollectionsDashboardProps {
   defaultCollectionId: string
   responseCounts: Record<string, number>
   userId: string
+  sharedFormPermissions?: Record<string, SharePermission>
 }
 
 export function CollectionsDashboard({
@@ -36,6 +38,7 @@ export function CollectionsDashboard({
   defaultCollectionId,
   responseCounts,
   userId,
+  sharedFormPermissions = {},
 }: CollectionsDashboardProps) {
   const router = useRouter()
   const supabase = createClient()
@@ -45,6 +48,7 @@ export function CollectionsDashboard({
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [newCollectionName, setNewCollectionName] = useState('')
   const [isCreating, setIsCreating] = useState(false)
+  const [shareTarget, setShareTarget] = useState<Form | null>(null)
 
   const collectionMap = useMemo(
     () => new Map(collections.map((c) => [c.id, c])),
@@ -56,19 +60,28 @@ export function CollectionsDashboard({
       ? form.collection_id
       : defaultCollectionId
 
+  const sharedCount = useMemo(
+    () => forms.filter((f) => f.user_id !== userId).length,
+    [forms, userId]
+  )
+
   const filteredForms = useMemo(() => {
     if (selectedCollectionId === 'all') return forms
-    return forms.filter((f) => getEffectiveCollectionId(f) === selectedCollectionId)
-  }, [forms, selectedCollectionId, collectionMap, defaultCollectionId])
+    if (selectedCollectionId === 'shared') return forms.filter((f) => f.user_id !== userId)
+    return forms.filter(
+      (f) => f.user_id === userId && getEffectiveCollectionId(f) === selectedCollectionId
+    )
+  }, [forms, selectedCollectionId, collectionMap, defaultCollectionId, userId])
 
   const countByCollection = useMemo(() => {
     const counts = new Map<string, number>()
     for (const f of forms) {
+      if (f.user_id !== userId) continue
       const cid = getEffectiveCollectionId(f)
       counts.set(cid, (counts.get(cid) || 0) + 1)
     }
     return counts
-  }, [forms, collectionMap, defaultCollectionId])
+  }, [forms, collectionMap, defaultCollectionId, userId])
 
   const handleCreateCollection = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -186,6 +199,22 @@ export function CollectionsDashboard({
             <span className="text-xs opacity-75">({forms.length})</span>
           </button>
 
+          {sharedCount > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedCollectionId('shared')}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                selectedCollectionId === 'shared'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              Compartidos conmigo
+              <span className="text-xs opacity-75">({sharedCount})</span>
+            </button>
+          )}
+
           {collections.map((col) => {
             const isSelected = selectedCollectionId === col.id
             const isDefault =
@@ -263,6 +292,7 @@ export function CollectionsDashboard({
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredForms.map((form) => {
+            const isShared = form.user_id !== userId
             const colId = getEffectiveCollectionId(form)
             const colName = collectionMap.get(colId)?.name ?? DEFAULT_COLLECTION_NAME
             return (
@@ -270,9 +300,12 @@ export function CollectionsDashboard({
                 key={form.id}
                 form={form}
                 responseCount={responseCounts[form.id] || 0}
-                collections={collections}
-                collectionName={colName}
-                onMoveToCollection={handleMoveToCollection}
+                collections={isShared ? [] : collections}
+                collectionName={isShared ? undefined : colName}
+                onMoveToCollection={isShared ? undefined : handleMoveToCollection}
+                isShared={isShared}
+                sharePermission={sharedFormPermissions[form.id]}
+                onShare={isShared ? undefined : (f) => setShareTarget(f)}
               />
             )
           })}
@@ -321,6 +354,16 @@ export function CollectionsDashboard({
           </form>
         </DialogContent>
       </Dialog>
+
+      {shareTarget && (
+        <ShareResourceDialog
+          open={!!shareTarget}
+          onOpenChange={(open) => !open && setShareTarget(null)}
+          resourceType="form"
+          resourceId={shareTarget.id}
+          resourceTitle={shareTarget.title || 'Formulario sin título'}
+        />
+      )}
     </>
   )
 }

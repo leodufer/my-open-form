@@ -11,7 +11,9 @@ import {
   QuestionType,
   Response as FormResponse,
   ReusableQuestion,
+  SharePermission,
 } from '@/lib/database.types'
+import { ShareResourceDialog } from '@/components/sharing/share-resource-dialog'
 import { createDefaultQuestion, getQuestionTypeInfo, questionTypes } from '@/lib/questions'
 import {
   extractReusableConfig,
@@ -48,12 +50,15 @@ import {
   Pencil,
   Plus,
   Search,
+  Share2,
   Trash2,
+  Users,
 } from 'lucide-react'
 
 interface ReusableQuestionsManagerProps {
   userId: string
   initialQuestions: ReusableQuestion[]
+  sharedPermissions?: Record<string, SharePermission>
   forms: Pick<Form, 'id' | 'title' | 'slug' | 'status' | 'questions' | 'collection_id'>[]
   collections: Collection[]
   responses: Pick<FormResponse, 'id' | 'form_id' | 'answers' | 'submitted_at'>[]
@@ -83,6 +88,7 @@ function formatDate(date: string) {
 export function ReusableQuestionsManager({
   userId,
   initialQuestions,
+  sharedPermissions = {},
   forms,
   collections,
   responses,
@@ -102,6 +108,7 @@ export function ReusableQuestionsManager({
   // Delete confirmation state
   const [deleteTarget, setDeleteTarget] = useState<ReusableQuestion | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [shareTarget, setShareTarget] = useState<ReusableQuestion | null>(null)
 
   const collectionMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -345,6 +352,9 @@ export function ReusableQuestionsManager({
             const usedInForms = usage?.forms || []
             const totalResponses = usage?.rows.length || 0
 
+            const isOwner = rq.user_id === userId
+            const canEdit = isOwner || sharedPermissions[rq.id] === 'edit'
+
             return (
               <Card key={rq.id} className="bg-white border-slate-200 flex flex-col justify-between">
                 <CardHeader className="pb-3">
@@ -359,26 +369,47 @@ export function ReusableQuestionsManager({
                           Obligatoria
                         </Badge>
                       )}
+                      {!isOwner && (
+                        <Badge variant="outline" className="gap-1 text-blue-700 border-blue-200 bg-blue-50">
+                          <Users className="w-3 h-3" />
+                          Compartida ({sharedPermissions[rq.id] === 'edit' ? 'Editable' : 'Solo ver'})
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        title="Editar"
-                        onClick={() => openEditDialog(rq)}
-                      >
-                        <Pencil className="w-4 h-4 text-slate-500" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 hover:text-red-600"
-                        title="Eliminar"
-                        onClick={() => setDeleteTarget(rq)}
-                      >
-                        <Trash2 className="w-4 h-4 text-slate-500" />
-                      </Button>
+                      {isOwner && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          title="Compartir"
+                          onClick={() => setShareTarget(rq)}
+                        >
+                          <Share2 className="w-4 h-4 text-slate-500" />
+                        </Button>
+                      )}
+                      {canEdit && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          title="Editar"
+                          onClick={() => openEditDialog(rq)}
+                        >
+                          <Pencil className="w-4 h-4 text-slate-500" />
+                        </Button>
+                      )}
+                      {isOwner && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 hover:text-red-600"
+                          title="Eliminar"
+                          onClick={() => setDeleteTarget(rq)}
+                        >
+                          <Trash2 className="w-4 h-4 text-slate-500" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                   <CardTitle className="text-lg text-slate-900 mt-2">{rq.title}</CardTitle>
@@ -509,6 +540,14 @@ export function ReusableQuestionsManager({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ShareResourceDialog
+        open={!!shareTarget}
+        onOpenChange={(open) => !open && setShareTarget(null)}
+        resourceType="reusable_question"
+        resourceId={shareTarget?.id ?? ''}
+        resourceTitle={shareTarget?.title ?? ''}
+      />
     </div>
   )
 }

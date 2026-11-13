@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUserCollections } from '@/lib/collections'
-import { Form, QuestionSegment, Response as FormResponse } from '@/lib/database.types'
+import { Form, QuestionSegment, ResourceShare, Response as FormResponse } from '@/lib/database.types'
 import { SegmentResponsesDashboard } from '@/components/segments/segment-responses-dashboard'
 
 export const dynamic = 'force-dynamic'
@@ -21,19 +21,35 @@ export default async function SegmentResponsesPage({ params }: SegmentResponsesP
     redirect('/login')
   }
 
+  const { data: sharedFormsData } = await supabase
+    .from('resource_shares')
+    .select('resource_id')
+    .eq('shared_with_user_id', user.id)
+    .eq('resource_type', 'form')
+
+  const sharedFormIds = ((sharedFormsData as Pick<ResourceShare, 'resource_id'>[] | null) ?? []).map(
+    (s) => s.resource_id
+  )
+
+  const formsQuery = supabase
+    .from('forms')
+    .select('id, title, slug, status, questions, collection_id')
+    .order('updated_at', { ascending: false })
+
+  if (sharedFormIds.length > 0) {
+    formsQuery.or(`user_id.eq.${user.id},id.in.(${sharedFormIds.join(',')})`)
+  } else {
+    formsQuery.eq('user_id', user.id)
+  }
+
   const [{ data: segmentData, error: segmentError }, { data: formsData }, { collections }] =
     await Promise.all([
       supabase
         .from('question_segments')
         .select('*')
         .eq('id', id)
-        .eq('user_id', user.id)
         .single(),
-      supabase
-        .from('forms')
-        .select('id, title, slug, status, questions, collection_id')
-        .eq('user_id', user.id)
-        .order('updated_at', { ascending: false }),
+      formsQuery,
       getUserCollections(supabase, user.id),
     ])
 

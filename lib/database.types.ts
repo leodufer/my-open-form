@@ -26,6 +26,10 @@ export type QuestionType =
 // Form status
 export type FormStatus = 'draft' | 'published' | 'closed'
 
+// Resource sharing types
+export type ShareResourceType = 'form' | 'reusable_question' | 'question_segment'
+export type SharePermission = 'view' | 'edit'
+
 // Theme presets
 export type ThemePreset = 
   | 'midnight'
@@ -175,6 +179,29 @@ export interface Database {
           updated_at?: string
         }
       }
+      resource_shares: {
+        Row: {
+          id: string
+          resource_type: ShareResourceType
+          resource_id: string
+          owner_id: string
+          shared_with_user_id: string
+          permission: SharePermission
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          resource_type: ShareResourceType
+          resource_id: string
+          owner_id: string
+          shared_with_user_id: string
+          permission?: SharePermission
+          created_at?: string
+        }
+        Update: {
+          permission?: SharePermission
+        }
+      }
       forms: {
         Row: {
           id: string
@@ -249,6 +276,9 @@ export type ReusableQuestionUpdate = Database['public']['Tables']['reusable_ques
 export type QuestionSegment = Database['public']['Tables']['question_segments']['Row']
 export type QuestionSegmentInsert = Database['public']['Tables']['question_segments']['Insert']
 export type QuestionSegmentUpdate = Database['public']['Tables']['question_segments']['Update']
+export type ResourceShare = Database['public']['Tables']['resource_shares']['Row']
+export type ResourceShareInsert = Database['public']['Tables']['resource_shares']['Insert']
+export type ResourceShareUpdate = Database['public']['Tables']['resource_shares']['Update']
 export type Form = Database['public']['Tables']['forms']['Row']
 export type FormInsert = Database['public']['Tables']['forms']['Insert']
 export type FormUpdate = Database['public']['Tables']['forms']['Update']

@@ -25,18 +25,15 @@ export default async function EditFormPage({ params }: EditFormPageProps) {
         .from('forms')
         .select('*')
         .eq('id', id)
-        .eq('user_id', user.id)
         .single(),
       getUserCollections(supabase, user.id),
       supabase
         .from('reusable_questions')
         .select('*')
-        .eq('user_id', user.id)
         .order('created_at', { ascending: false }),
       supabase
         .from('question_segments')
         .select('*')
-        .eq('user_id', user.id)
         .order('created_at', { ascending: false }),
     ])
 
@@ -46,6 +43,24 @@ export default async function EditFormPage({ params }: EditFormPageProps) {
 
   if (error || !form) {
     notFound()
+  }
+
+  if (form.user_id !== user.id) {
+    const { data: shareData } = await supabase
+      .from('resource_shares')
+      .select('permission')
+      .eq('resource_type', 'form')
+      .eq('resource_id', form.id)
+      .eq('shared_with_user_id', user.id)
+      .single()
+
+    const share = shareData as { permission?: string } | null
+    if (!share) {
+      notFound()
+    }
+    if (share.permission !== 'edit') {
+      redirect(`/forms/${id}/responses`)
+    }
   }
 
   return (
