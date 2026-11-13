@@ -92,6 +92,7 @@ services:
       PGPASSWORD: your-super-secret-and-long-postgres-password
     volumes:
       - ./supabase/schema.sql:/schema.sql:ro
+      - ./supabase/seed-admin.sql:/seed-admin.sql:ro
     entrypoint:
       - /bin/sh
       - -c
@@ -105,6 +106,8 @@ services:
           psql -h supabase-db -U postgres -d postgres -v ON_ERROR_STOP=1 -f /schema.sql
           echo "Schema applied successfully."
         fi
+        echo "Ensuring default admin user exists..."
+        psql -h supabase-db -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -f /seed-admin.sql
 
   openform:
     build:
