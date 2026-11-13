@@ -2,8 +2,9 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Form, Collection, QuestionConfig, ThemePreset, FormStatus } from '@/lib/database.types'
-import { questionTypes, createDefaultQuestion } from '@/lib/questions'
+import { Form, Collection, QuestionConfig, ReusableQuestion, ThemePreset, FormStatus } from '@/lib/database.types'
+import { questionTypes, createDefaultQuestion, getQuestionTypeInfo } from '@/lib/questions'
+import { formQuestionToReusablePayload, reusableQuestionToFormQuestion } from '@/lib/reusable-questions'
 import { themes, themeList } from '@/lib/themes'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -49,6 +50,8 @@ import {
   CopyPlus,
   Loader2,
   Check,
+  Bookmark,
+  Search,
 } from 'lucide-react'
 import Link from 'next/link'
 import { QuestionEditor } from './question-editor'
@@ -58,9 +61,14 @@ import { FormPlayer } from '@/components/form-player/form-player'
 interface FormBuilderProps {
   form: Form
   collections?: Collection[]
+  reusableQuestions?: ReusableQuestion[]
 }
 
-export function FormBuilder({ form: initialForm, collections = [] }: FormBuilderProps) {
+export function FormBuilder({
+  form: initialForm,
+  collections = [],
+  reusableQuestions: initialReusableQuestions = [],
+}: FormBuilderProps) {
   const supabase = createClient()
   
   const [form, setForm] = useState(initialForm)
@@ -74,6 +82,10 @@ export function FormBuilder({ form: initialForm, collections = [] }: FormBuilder
   const [activeTab, setActiveTab] = useState('questions')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [showFullPreview, setShowFullPreview] = useState(false)
+  const [reusableQuestions, setReusableQuestions] = useState<ReusableQuestion[]>(initialReusableQuestions)
+  const [isSavingReusable, setIsSavingReusable] = useState(false)
+  const [addElementTab, setAddElementTab] = useState<'new' | 'reusable'>('new')
+  const [reusableSearch, setReusableSearch] = useState('')
 
   const selectedQuestion = questions.find(q => q.id === selectedQuestionId)
 
@@ -174,6 +186,39 @@ export function FormBuilder({ form: initialForm, collections = [] }: FormBuilder
     setSelectedQuestionId(newQuestion.id)
     setShowAddQuestion(false)
     setHasUnsavedChanges(true)
+  }
+
+  const addReusableQuestion = (reusable: ReusableQuestion) => {
+    const newQuestion = reusableQuestionToFormQuestion(reusable)
+    setQuestions([...questions, newQuestion])
+    setSelectedQuestionId(newQuestion.id)
+    setShowAddQuestion(false)
+    setHasUnsavedChanges(true)
+    toast.success('Pregunta reutilizable agregada al formulario')
+  }
+
+  const saveQuestionAsReusable = async (question: QuestionConfig) => {
+    if (!question.title.trim()) {
+      toast.error('Escribí el título de la pregunta antes de guardarla como reutilizable')
+      return
+    }
+    setIsSavingReusable(true)
+    const payload = formQuestionToReusablePayload(question, form.user_id)
+    const { data, error } = await supabase
+      .from('reusable_questions')
+      .insert(payload as never)
+      .select('*')
+      .single()
+
+    if (error || !data) {
+      toast.error('No se pudo guardar la pregunta como reutilizable')
+    } else {
+      const saved = data as ReusableQuestion
+      setReusableQuestions([saved, ...reusableQuestions])
+      updateQuestion(question.id, { reusableQuestionId: saved.id })
+      toast.success('Pregunta guardada en tu biblioteca de reutilizables')
+    }
+    setIsSavingReusable(false)
   }
 
   const updateQuestion = (id: string, updates: Partial<QuestionConfig>) => {
@@ -388,6 +433,9 @@ export function FormBuilder({ form: initialForm, collections = [] }: FormBuilder
                                     {question.required && (
                                       <span className="text-xs text-red-500">*</span>
                                     )}
+                                    {question.reusableQuestionId && (
+                                      <Bookmark className="w-3 h-3 text-blue-600 shrink-0" aria-label="Pregunta reutilizable" />
+                                    )}
                                   </div>
                                   <p className="text-sm font-medium text-slate-900 truncate">
                                     {question.title || 'Sin título'}
@@ -590,6 +638,8 @@ export function FormBuilder({ form: initialForm, collections = [] }: FormBuilder
                 question={selectedQuestion}
                 onUpdate={(updates) => updateQuestion(selectedQuestion.id, updates)}
                 onDelete={() => deleteQuestion(selectedQuestion.id)}
+                onSaveAsReusable={() => saveQuestionAsReusable(selectedQuestion)}
+                isSavingReusable={isSavingReusable}
               />
             </div>
           )}
@@ -637,22 +687,98 @@ export function FormBuilder({ form: initialForm, collections = [] }: FormBuilder
           <DialogHeader>
             <DialogTitle>Agregar elemento</DialogTitle>
             <DialogDescription>
-              Elegí un tipo de elemento para agregar a tu formulario
+              Elegí un tipo de elemento nuevo o insertá una pregunta reutilizable de tu biblioteca
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 py-4 max-h-[60vh] overflow-y-auto">
-            {questionTypes.map((qt) => (
-              <button
-                key={qt.type}
-                onClick={() => addQuestion(qt.type)}
-                className="p-4 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-left group"
-              >
-                <qt.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-600 mb-2" />
-                <p className="font-medium text-sm text-slate-900">{qt.label}</p>
-                <p className="text-xs text-slate-500 mt-1">{qt.description}</p>
-              </button>
-            ))}
-          </div>
+          <Tabs
+            value={addElementTab}
+            onValueChange={(val) => setAddElementTab(val as 'new' | 'reusable')}
+          >
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="new">Nuevos elementos</TabsTrigger>
+              <TabsTrigger value="reusable" className="gap-1.5">
+                <Bookmark className="w-3.5 h-3.5" />
+                Reutilizables ({reusableQuestions.length})
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="new" className="mt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[55vh] overflow-y-auto pr-1">
+                {questionTypes.map((qt) => (
+                  <button
+                    key={qt.type}
+                    onClick={() => addQuestion(qt.type)}
+                    className="p-4 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-left group"
+                  >
+                    <qt.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-600 mb-2" />
+                    <p className="font-medium text-sm text-slate-900">{qt.label}</p>
+                    <p className="text-xs text-slate-500 mt-1">{qt.description}</p>
+                  </button>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="reusable" className="mt-4 space-y-3">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Input
+                  value={reusableSearch}
+                  onChange={(e) => setReusableSearch(e.target.value)}
+                  placeholder="Buscar en tus preguntas reutilizables..."
+                  className="pl-9"
+                />
+              </div>
+              <div className="max-h-[48vh] overflow-y-auto space-y-2 pr-1">
+                {reusableQuestions.length === 0 ? (
+                  <div className="text-center py-8 px-4 border border-dashed rounded-lg">
+                    <Bookmark className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                    <p className="text-sm text-slate-600">No tenés preguntas reutilizables todavía</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Podés crearlas en la sección Preguntas o guardar cualquier pregunta desde el editor.
+                    </p>
+                    <Button variant="outline" size="sm" className="mt-3" asChild>
+                      <Link href="/questions">Ir a Preguntas reutilizables</Link>
+                    </Button>
+                  </div>
+                ) : (
+                  reusableQuestions
+                    .filter((rq) =>
+                      !reusableSearch.trim() ||
+                      rq.title.toLowerCase().includes(reusableSearch.toLowerCase()) ||
+                      (rq.description || '').toLowerCase().includes(reusableSearch.toLowerCase())
+                    )
+                    .map((rq) => {
+                      const info = getQuestionTypeInfo(rq.type)
+                      const Icon = info?.icon || FileText
+                      const alreadyInForm = questions.some((q) => q.reusableQuestionId === rq.id)
+                      return (
+                        <button
+                          key={rq.id}
+                          onClick={() => addReusableQuestion(rq)}
+                          className="w-full p-3 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-left flex items-start justify-between gap-3"
+                        >
+                          <div className="flex items-start gap-3 min-w-0">
+                            <Icon className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm text-slate-900 truncate">{rq.title}</p>
+                              <p className="text-xs text-slate-500 mt-0.5">
+                                {info?.label ?? rq.type}
+                                {rq.description ? ` · ${rq.description}` : ''}
+                              </p>
+                            </div>
+                          </div>
+                          {alreadyInForm && (
+                            <Badge variant="secondary" className="shrink-0 text-xs">
+                              Ya en el formulario
+                            </Badge>
+                          )}
+                        </button>
+                      )
+                    })
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 

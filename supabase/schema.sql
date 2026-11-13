@@ -31,6 +31,21 @@ CREATE TABLE collections (
 
 CREATE INDEX idx_collections_user_id ON collections(user_id);
 
+-- Reusable questions table
+CREATE TABLE reusable_questions (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  type TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  required BOOLEAN DEFAULT FALSE NOT NULL,
+  config JSONB DEFAULT '{}'::jsonb NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+CREATE INDEX idx_reusable_questions_user_id ON reusable_questions(user_id);
+
 -- Forms table
 CREATE TABLE forms (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -74,6 +89,7 @@ CREATE INDEX idx_responses_submitted_at ON responses(submitted_at DESC);
 -- Enable RLS
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE collections ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reusable_questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE forms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE responses ENABLE ROW LEVEL SECURITY;
 
@@ -92,6 +108,23 @@ CREATE POLICY "Users can update their own collections"
 
 CREATE POLICY "Users can delete their own collections"
   ON collections FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Reusable questions policies
+CREATE POLICY "Users can view their own reusable questions"
+  ON reusable_questions FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own reusable questions"
+  ON reusable_questions FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own reusable questions"
+  ON reusable_questions FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own reusable questions"
+  ON reusable_questions FOR DELETE
   USING (auth.uid() = user_id);
 
 -- Profiles policies
@@ -218,6 +251,10 @@ CREATE TRIGGER update_profiles_updated_at
 
 CREATE TRIGGER update_collections_updated_at
   BEFORE UPDATE ON collections
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_reusable_questions_updated_at
+  BEFORE UPDATE ON reusable_questions
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 CREATE TRIGGER update_forms_updated_at

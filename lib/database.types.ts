@@ -48,6 +48,7 @@ export interface ThemeConfig {
 // Question configuration
 export interface QuestionConfig {
   id: string
+  reusableQuestionId?: string
   type: QuestionType
   title: string
   description?: string
@@ -102,13 +103,44 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          collection_id?: string | null
           name: string
           created_at?: string
           updated_at?: string
         }
         Update: {
           name?: string
+          updated_at?: string
+        }
+      }
+      reusable_questions: {
+        Row: {
+          id: string
+          user_id: string
+          type: QuestionType
+          title: string
+          description: string | null
+          required: boolean
+          config: Omit<QuestionConfig, 'id' | 'reusableQuestionId' | 'type' | 'title' | 'description' | 'required'>
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: QuestionType
+          title: string
+          description?: string | null
+          required?: boolean
+          config?: Omit<QuestionConfig, 'id' | 'reusableQuestionId' | 'type' | 'title' | 'description' | 'required'>
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          type?: QuestionType
+          title?: string
+          description?: string | null
+          required?: boolean
+          config?: Omit<QuestionConfig, 'id' | 'reusableQuestionId' | 'type' | 'title' | 'description' | 'required'>
           updated_at?: string
         }
       }
@@ -180,6 +212,9 @@ export interface Database {
 // Convenience types
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Collection = Database['public']['Tables']['collections']['Row']
+export type ReusableQuestion = Database['public']['Tables']['reusable_questions']['Row']
+export type ReusableQuestionInsert = Database['public']['Tables']['reusable_questions']['Insert']
+export type ReusableQuestionUpdate = Database['public']['Tables']['reusable_questions']['Update']
 export type Form = Database['public']['Tables']['forms']['Row']
 export type FormInsert = Database['public']['Tables']['forms']['Insert']
 export type FormUpdate = Database['public']['Tables']['forms']['Update']

@@ -8,15 +8,26 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
-import { Trash2, Plus, GripVertical, X } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Trash2, Plus, GripVertical, X, Bookmark, Loader2 } from 'lucide-react'
 
 interface QuestionEditorProps {
   question: QuestionConfig
   onUpdate: (updates: Partial<QuestionConfig>) => void
   onDelete: () => void
+  hideDelete?: boolean
+  onSaveAsReusable?: () => void
+  isSavingReusable?: boolean
 }
 
-export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorProps) {
+export function QuestionEditor({
+  question,
+  onUpdate,
+  onDelete,
+  hideDelete = false,
+  onSaveAsReusable,
+  isSavingReusable = false,
+}: QuestionEditorProps) {
   const typeInfo = getQuestionTypeInfo(question.type)
 
   const addOption = () => {
@@ -38,9 +49,17 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
   return (
     <div className="p-4 space-y-6">
       {/* Question Type Badge */}
-      <div className="flex items-center gap-2">
-        {typeInfo && <typeInfo.icon className="w-4 h-4 text-blue-600" />}
-        <span className="text-sm font-medium text-slate-600">{typeInfo?.label}</span>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          {typeInfo && <typeInfo.icon className="w-4 h-4 text-blue-600" />}
+          <span className="text-sm font-medium text-slate-600">{typeInfo?.label}</span>
+        </div>
+        {question.reusableQuestionId && (
+          <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 gap-1">
+            <Bookmark className="w-3 h-3" />
+            Reutilizable
+          </Badge>
+        )}
       </div>
 
       {/* Question Title */}
@@ -253,17 +272,41 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
         </>
       )}
 
-      <Separator />
+      {!question.reusableQuestionId && onSaveAsReusable && (
+        <>
+          <Separator />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onSaveAsReusable}
+            disabled={isSavingReusable}
+            className="w-full"
+          >
+            {isSavingReusable ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Bookmark className="w-4 h-4 mr-2" />
+            )}
+            Guardar como reutilizable
+          </Button>
+        </>
+      )}
 
-      {/* Delete button */}
-      <Button
-        variant="outline"
-        onClick={onDelete}
-        className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
-      >
-        <Trash2 className="w-4 h-4 mr-2" />
-        Eliminar elemento
-      </Button>
+      {!hideDelete && (
+        <>
+          <Separator />
+
+          {/* Delete button */}
+          <Button
+            variant="outline"
+            onClick={onDelete}
+            className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Eliminar elemento
+          </Button>
+        </>
+      )}
     </div>
   )
 }
