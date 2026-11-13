@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { User } from '@supabase/supabase-js'
-import { Bookmark, Layers, LogOut, Plus, Settings, User as UserIcon, Users } from 'lucide-react'
+import { Bookmark, BookOpen, Layers, LogOut, Plus, Settings, User as UserIcon, Users } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface DashboardNavProps {
@@ -129,6 +129,17 @@ export function DashboardNav({ user, isAdmin = false }: DashboardNavProps) {
                   <Settings className="mr-2 h-4 w-4" />
                   Configuración
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href="/docs/index.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="cursor-pointer"
+                >
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Documentación
+                </a>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600">
