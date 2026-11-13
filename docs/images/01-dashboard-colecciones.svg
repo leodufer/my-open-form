@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <rect width="960" height="540" fill="#f8fafc" rx="12"/>
+  <!-- Top Navbar -->
+  <rect width="960" height="56" fill="#ffffff"/>
+  <line x1="0" y1="56" x2="960" y2="56" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="28" y="16" width="24" height="24" rx="6" fill="#2563eb"/>
+  <text x="60" y="33" font-size="16" font-weight="700" fill="#0f172a">OpenForm</text>
+  <text x="175" y="33" font-size="13" font-weight="600" fill="#0f172a">Mis formularios</text>
+  <text x="295" y="33" font-size="13" fill="#64748b">Preguntas</text>
+  <text x="380" y="33" font-size="13" fill="#64748b">Segmentos</text>
+  <text x="470" y="33" font-size="13" fill="#64748b">Usuarios</text>
+  <text x="545" y="33" font-size="13" fill="#64748b">Configuración</text>
+  <rect x="760" y="13" width="136" height="30" rx="6" fill="#2563eb"/>
+  <text x="778" y="32" font-size="12" font-weight="600" fill="#ffffff">+ Crear formulario</text>
+  <circle cx="920" cy="28" r="14" fill="#2563eb"/>
+  <text x="912" y="32" font-size="11" font-weight="600" fill="#ffffff">AD</text>
+
+  <!-- Header -->
+  <text x="32" y="98" font-size="22" font-weight="700" fill="#0f172a">Mis formularios</text>
+  <text x="32" y="118" font-size="13" fill="#64748b">Organizá tus formularios en colecciones y gestioná sus respuestas</text>
+  <rect x="766" y="84" width="162" height="34" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="784" y="105" font-size="12" font-weight="500" fill="#334155">+ Nueva colección</text>
+
+  <!-- Collection Filter Pills -->
+  <rect x="32" y="140" width="76" height="30" rx="15" fill="#0f172a"/>
+  <text x="50" y="159" font-size="12" font-weight="500" fill="#ffffff">Todos (4)</text>
+
+  <rect x="116" y="140" width="96" height="30" rx="15" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="132" y="159" font-size="12" fill="#334155">General (2)</text>
+
+  <rect x="220" y="140" width="132" height="30" rx="15" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="236" y="159" font-size="12" fill="#334155">Recursos Humanos (1)</text>
+
+  <rect x="360" y="140" width="162" height="30" rx="15" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="376" y="159" font-size="12" font-weight="500" fill="#1d4ed8">Compartidos conmigo (1)</text>
+
+  <!-- Card 1 -->
+  <rect x="32" y="192" width="286" height="190" rx="10" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="52" y="212" width="72" height="22" rx="11" fill="#dcfce7"/>
+  <text x="64" y="227" font-size="11" font-weight="600" fill="#15803d">Publicado</text>
+  <rect x="132" y="212" width="60" height="22" rx="11" fill="#f1f5f9"/>
+  <text x="142" y="227" font-size="11" fill="#475569">General</text>
+  <text x="292" y="227" font-size="16" fill="#64748b">⋯</text>
+  <text x="52" y="262" font-size="16" font-weight="600" fill="#0f172a">Encuesta de Satisfacción</text>
+  <text x="52" y="282" font-size="12" fill="#64748b">Evaluación trimestral de atención</text>
+  <text x="52" y="318" font-size="12" fill="#475569">5 preguntas · 24 respuestas</text>
+  <line x1="52" y1="334" x2="298" y2="334" stroke="#f1f5f9"/>
+  <rect x="52" y="346" width="74" height="24" rx="5" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="72" y="362" font-size="11" font-weight="500" fill="#334155">Editar</text>
+  <rect x="134" y="346" width="92" height="24" rx="5" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="144" y="362" font-size="11" font-weight="500" fill="#334155">Respuestas</text>
+  <rect x="234" y="346" width="64" height="24" rx="5" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="242" y="362" font-size="11" font-weight="500" fill="#1d4ed8">Compartir</text>
+
+  <!-- Card 2 -->
+  <rect x="337" y="192" width="286" height="190" rx="10" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="357" y="212" width="66" height="22" rx="11" fill="#fef3c7"/>
+  <text x="367" y="227" font-size="11" font-weight="600" fill="#b45309">Borrador</text>
+  <rect x="431" y="212" width="112" height="22" rx="11" fill="#f1f5f9"/>
+  <text x="441" y="227" font-size="11" fill="#475569">Recursos Humanos</text>
+  <text x="597" y="227" font-size="16" fill="#64748b">⋯</text>
+  <text x="357" y="262" font-size="16" font-weight="600" fill="#0f172a">Alta de Nuevo Ingreso</text>
+  <text x="357" y="282" font-size="12" fill="#64748b">Ficha personal y equipamiento</text>
+  <text x="357" y="318" font-size="12" fill="#475569">8 preguntas · 0 respuestas</text>
+  <line x1="357" y1="334" x2="603" y2="334" stroke="#f1f5f9"/>
+  <rect x="357" y="346" width="74" height="24" rx="5" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="377" y="362" font-size="11" font-weight="500" fill="#334155">Editar</text>
+  <rect x="439" y="346" width="92" height="24" rx="5" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="449" y="362" font-size="11" font-weight="500" fill="#334155">Respuestas</text>
+  <rect x="539" y="346" width="64" height="24" rx="5" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="547" y="362" font-size="11" font-weight="500" fill="#1d4ed8">Compartir</text>
+
+  <!-- Card 3 (Shared) -->
+  <rect x="642" y="192" width="286" height="190" rx="10" fill="#ffffff" stroke="#bfdbfe"/>
+  <rect x="662" y="212" width="72" height="22" rx="11" fill="#dcfce7"/>
+  <text x="674" y="227" font-size="11" font-weight="600" fill="#15803d">Publicado</text>
+  <rect x="742" y="212" width="134" height="22" rx="11" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="752" y="227" font-size="11" font-weight="500" fill="#1d4ed8">Compartido (Editable)</text>
+  <text x="662" y="262" font-size="16" font-weight="600" fill="#0f172a">Registro de Eventos 2026</text>
+  <text x="662" y="282" font-size="12" fill="#64748b">Formulario compartido por equipo</text>
+  <text x="662" y="318" font-size="12" fill="#475569">6 preguntas · 41 respuestas</text>
+  <line x1="662" y1="334" x2="908" y2="334" stroke="#f1f5f9"/>
+  <rect x="662" y="346" width="74" height="24" rx="5" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="682" y="362" font-size="11" font-weight="500" fill="#334155">Editar</text>
+  <rect x="744" y="346" width="92" height="24" rx="5" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="754" y="362" font-size="11" font-weight="500" fill="#334155">Respuestas</text>
+
+  <!-- Callouts -->
+  <rect x="32" y="410" width="896" height="98" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+  <circle cx="56" cy="438" r="11" fill="#2563eb"/>
+  <text x="52" y="442" font-size="11" font-weight="700" fill="#ffffff">1</text>
+  <text x="76" y="442" font-size="12" fill="#334155"><tspan font-weight="600">Barra superior:</tspan> acceso directo a Mis formularios, Preguntas, Segmentos, Usuarios (solo admin) y Configuración.</text>
+
+  <circle cx="56" cy="466" r="11" fill="#2563eb"/>
+  <text x="52" y="470" font-size="11" font-weight="700" fill="#ffffff">2</text>
+  <text x="76" y="470" font-size="12" fill="#334155"><tspan font-weight="600">Filtros de colección:</tspan> organizá formularios en General o nuevas colecciones y filtrá los recursos Compartidos conmigo.</text>
+
+  <circle cx="56" cy="494" r="11" fill="#2563eb"/>
+  <text x="52" y="498" font-size="11" font-weight="700" fill="#ffffff">3</text>
+  <text x="76" y="498" font-size="12" fill="#334155"><tspan font-weight="600">Tarjetas de formulario:</tspan> editá preguntas, revisá respuestas, compartí con otros usuarios o mové entre colecciones.</text>
+</svg>
+

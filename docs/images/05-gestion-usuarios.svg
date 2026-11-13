@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="960" height="440" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <rect width="960" height="440" fill="#f8fafc" rx="12"/>
+  <text x="36" y="46" font-size="20" font-weight="700" fill="#0f172a">Gestión de Usuarios (Solo Administrador)</text>
+  <text x="36" y="68" font-size="13" fill="#64748b">Ruta /users — Visible únicamente para usuarios con rol Administrador (ej. leodufer@gmail.com)</text>
+
+  <!-- Create User Form Card -->
+  <rect x="36" y="92" width="330" height="312" rx="10" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="56" y="124" font-size="15" font-weight="600" fill="#0f172a">Crear nuevo usuario</text>
+  <text x="56" y="154" font-size="12" font-weight="500" fill="#475569">Nombre completo</text>
+  <rect x="56" y="162" width="290" height="34" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="68" y="183" font-size="12" fill="#0f172a">María Gómez</text>
+
+  <text x="56" y="216" font-size="12" font-weight="500" fill="#475569">Correo electrónico</text>
+  <rect x="56" y="224" width="290" height="34" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="68" y="245" font-size="12" fill="#0f172a">maria.gomez@empresa.com</text>
+
+  <text x="56" y="278" font-size="12" font-weight="500" fill="#475569">Contraseña inicial</text>
+  <rect x="56" y="286" width="290" height="34" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="68" y="307" font-size="12" fill="#64748b">••••••••••••</text>
+
+  <rect x="56" y="342" width="290" height="38" rx="7" fill="#2563eb"/>
+  <text x="150" y="366" font-size="13" font-weight="600" fill="#ffffff">Crear usuario</text>
+
+  <!-- Users Table Card -->
+  <rect x="386" y="92" width="538" height="312" rx="10" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="408" y="124" font-size="15" font-weight="600" fill="#0f172a">Usuarios registrados</text>
+
+  <rect x="408" y="142" width="494" height="32" rx="6" fill="#f1f5f9"/>
+  <text x="422" y="162" font-size="11" font-weight="600" fill="#475569">USUARIO</text>
+  <text x="650" y="162" font-size="11" font-weight="600" fill="#475569">ROL</text>
+  <text x="790" y="162" font-size="11" font-weight="600" fill="#475569">ACCIONES</text>
+
+  <!-- Row 1 -->
+  <text x="422" y="200" font-size="13" font-weight="600" fill="#0f172a">leodufer@gmail.com</text>
+  <text x="422" y="216" font-size="11" fill="#64748b">Administrador principal</text>
+  <rect x="650" y="190" width="92" height="22" rx="11" fill="#dbeafe"/>
+  <text x="660" y="205" font-size="11" font-weight="600" fill="#1d4ed8">Administrador</text>
+  <text x="790" y="204" font-size="11" fill="#64748b">Cuenta actual</text>
+  <line x1="408" y1="232" x2="902" y2="232" stroke="#f1f5f9"/>
+
+  <!-- Row 2 -->
+  <text x="422" y="260" font-size="13" font-weight="600" fill="#0f172a">maria.gomez@empresa.com</text>
+  <text x="422" y="276" font-size="11" fill="#64748b">María Gómez</text>
+  <rect x="650" y="250" width="66" height="22" rx="11" fill="#f1f5f9"/>
+  <text x="663" y="265" font-size="11" fill="#334155">Usuario</text>
+  <text x="790" y="264" font-size="11" font-weight="500" fill="#2563eb">Cambiar rol</text>
+  <text x="862" y="264" font-size="11" font-weight="500" fill="#dc2626">Eliminar</text>
+  <line x1="408" y1="292" x2="902" y2="292" stroke="#f1f5f9"/>
+
+  <!-- Note for regular users -->
+  <rect x="408" y="314" width="494" height="68" rx="8" fill="#fefce8" stroke="#fde047"/>
+  <text x="424" y="338" font-size="12" font-weight="600" fill="#854d0e">Nota para usuarios estándar:</text>
+  <text x="424" y="357" font-size="12" fill="#713f12">Los usuarios sin rol de administrador no pueden crear ni eliminar cuentas;</text>
+  <text x="424" y="373" font-size="12" fill="#713f12">pueden actualizar su propio perfil y contraseña desde Configuración (/settings).</text>
+</svg>
+

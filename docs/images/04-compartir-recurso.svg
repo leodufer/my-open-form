@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="960" height="440" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <rect width="960" height="440" fill="#e2e8f0" rx="12"/>
+  <!-- Modal Backdrop Simulation -->
+  <rect x="190" y="36" width="580" height="368" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="220" y="74" font-size="18" font-weight="700" fill="#0f172a">Compartir formulario</text>
+  <text x="220" y="96" font-size="13" fill="#64748b">Encuesta de Satisfacción — Elegí qué usuarios pueden ver o editar</text>
+  <line x1="220" y1="112" x2="740" y2="112" stroke="#e2e8f0"/>
+
+  <!-- Invite Input Row -->
+  <text x="220" y="138" font-size="12" font-weight="600" fill="#334155">Correo del usuario registrado</text>
+  <rect x="220" y="148" width="280" height="36" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="234" y="170" font-size="13" fill="#0f172a">maria.gomez@empresa.com</text>
+
+  <rect x="510" y="148" width="124" height="36" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="524" y="170" font-size="13" fill="#0f172a">Editable ▾</text>
+
+  <rect x="644" y="148" width="96" height="36" rx="6" fill="#2563eb"/>
+  <text x="664" y="170" font-size="13" font-weight="600" fill="#ffffff">Compartir</text>
+
+  <!-- Shared Users List -->
+  <text x="220" y="216" font-size="12" font-weight="600" fill="#475569">Personas con acceso (2)</text>
+
+  <rect x="220" y="230" width="520" height="54" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <circle cx="248" cy="257" r="14" fill="#dbeafe"/>
+  <text x="240" y="261" font-size="11" font-weight="600" fill="#1d4ed8">MG</text>
+  <text x="274" y="253" font-size="13" font-weight="600" fill="#0f172a">maria.gomez@empresa.com</text>
+  <text x="274" y="270" font-size="11" fill="#64748b">Puede editar preguntas y ver respuestas</text>
+  <rect x="564" y="244" width="102" height="26" rx="5" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="576" y="261" font-size="12" fill="#334155">Editable ▾</text>
+  <text x="692" y="261" font-size="12" font-weight="500" fill="#dc2626">Quitar</text>
+
+  <rect x="220" y="294" width="520" height="54" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <circle cx="248" cy="321" r="14" fill="#e2e8f0"/>
+  <text x="240" y="325" font-size="11" font-weight="600" fill="#475569">JP</text>
+  <text x="274" y="317" font-size="13" font-weight="600" fill="#0f172a">juan.perez@empresa.com</text>
+  <text x="274" y="334" font-size="11" fill="#64748b">Solo lectura (ver respuestas / usar en sus formularios)</text>
+  <rect x="564" y="308" width="102" height="26" rx="5" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="576" y="325" font-size="12" fill="#334155">Solo ver ▾</text>
+  <text x="692" y="325" font-size="12" font-weight="500" fill="#dc2626">Quitar</text>
+
+  <rect x="668" y="362" width="72" height="28" rx="6" fill="#f1f5f9"/>
+  <text x="686" y="380" font-size="12" font-weight="500" fill="#334155">Cerrar</text>
+</svg>
+

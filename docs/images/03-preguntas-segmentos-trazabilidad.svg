@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="960" height="460" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <rect width="960" height="460" fill="#f8fafc" rx="12"/>
+  <text x="32" y="40" font-size="18" font-weight="700" fill="#0f172a">Trazabilidad de Preguntas y Segmentos Reutilizables</text>
+  <text x="32" y="62" font-size="13" fill="#64748b">Un mismo bloque o pregunta se inserta en múltiples formularios y consolida las respuestas identificando su origen</text>
+
+  <!-- Source Library Box -->
+  <rect x="32" y="96" width="230" height="220" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="52" y="126" font-size="13" font-weight="700" fill="#1d4ed8">Biblioteca Reutilizable</text>
+  <rect x="52" y="144" width="190" height="68" rx="8" fill="#ffffff" stroke="#bfdbfe"/>
+  <text x="64" y="168" font-size="12" font-weight="600" fill="#0f172a">Pregunta: Nivel NPS</text>
+  <text x="64" y="186" font-size="11" fill="#64748b">ID: reusableQuestionId</text>
+  <text x="64" y="201" font-size="11" fill="#2563eb">Escala 1-10</text>
+
+  <rect x="52" y="226" width="190" height="72" rx="8" fill="#ffffff" stroke="#bfdbfe"/>
+  <text x="64" y="250" font-size="12" font-weight="600" fill="#0f172a">Segmento: Datos Contacto</text>
+  <text x="64" y="268" font-size="11" fill="#64748b">ID: segmentId</text>
+  <text x="64" y="283" font-size="11" fill="#15803d">3 preguntas agrupadas</text>
+
+  <!-- Arrows to Forms -->
+  <line x1="262" y1="160" x2="352" y2="132" stroke="#64748b" stroke-width="2"/>
+  <line x1="262" y1="206" x2="352" y2="210" stroke="#64748b" stroke-width="2"/>
+  <line x1="262" y1="262" x2="352" y2="288" stroke="#64748b" stroke-width="2"/>
+
+  <!-- Forms Column -->
+  <rect x="356" y="96" width="220" height="68" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="372" y="122" font-size="13" font-weight="600" fill="#0f172a">Formulario A (Soporte)</text>
+  <text x="372" y="142" font-size="11" fill="#64748b">Colección: General · 12 resp.</text>
+
+  <rect x="356" y="176" width="220" height="68" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="372" y="202" font-size="13" font-weight="600" fill="#0f172a">Formulario B (Ventas)</text>
+  <text x="372" y="222" font-size="11" fill="#64748b">Colección: Comercial · 19 resp.</text>
+
+  <rect x="356" y="256" width="220" height="68" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="372" y="282" font-size="13" font-weight="600" fill="#0f172a">Formulario C (Eventos)</text>
+  <text x="372" y="302" font-size="11" fill="#64748b">Colección: Marketing · 8 resp.</text>
+
+  <!-- Arrows to Consolidated Responses -->
+  <line x1="576" y1="130" x2="646" y2="175" stroke="#2563eb" stroke-width="2"/>
+  <line x1="576" y1="210" x2="646" y2="210" stroke="#2563eb" stroke-width="2"/>
+  <line x1="576" y1="290" x2="646" y2="245" stroke="#2563eb" stroke-width="2"/>
+
+  <!-- Consolidated Dashboard -->
+  <rect x="650" y="96" width="278" height="228" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="668" y="124" font-size="13" font-weight="700" fill="#15803d">Respuestas Consolidadas</text>
+  <text x="668" y="142" font-size="11" fill="#64748b">/questions/[id]/responses · /segments/[id]/responses</text>
+
+  <rect x="666" y="158" width="246" height="44" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="678" y="176" font-size="11" font-weight="600" fill="#0f172a">Respuesta: 9/10</text>
+  <text x="678" y="192" font-size="10" fill="#2563eb">Origen: Formulario A (Soporte)</text>
+
+  <rect x="666" y="210" width="246" height="44" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="678" y="228" font-size="11" font-weight="600" fill="#0f172a">Respuesta: 10/10</text>
+  <text x="678" y="244" font-size="10" fill="#2563eb">Origen: Formulario B (Ventas)</text>
+
+  <rect x="666" y="262" width="246" height="44" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="678" y="280" font-size="11" font-weight="600" fill="#0f172a">Respuesta: 8/10</text>
+  <text x="678" y="296" font-size="10" fill="#2563eb">Origen: Formulario C (Eventos)</text>
+
+  <!-- Footer Note -->
+  <rect x="32" y="346" width="896" height="82" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="52" y="374" font-size="12" font-weight="600" fill="#0f172a">¿Cómo funciona la trazabilidad?</text>
+  <text x="52" y="395" font-size="12" fill="#475569">Cada vez que insertás una pregunta reutilizable o un segmento en un formulario, OpenForm conserva su identificador de origen</text>
+  <text x="52" y="413" font-size="12" fill="#475569">y permite filtrar respuestas por formulario, colección y exportar todos los datos consolidados a CSV.</text>
+</svg>
+

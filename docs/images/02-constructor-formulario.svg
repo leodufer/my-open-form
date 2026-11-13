@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <rect width="960" height="540" fill="#f8fafc" rx="12"/>
+  <!-- Top Builder Bar -->
+  <rect width="960" height="56" fill="#ffffff"/>
+  <line x1="0" y1="56" x2="960" y2="56" stroke="#e2e8f0"/>
+  <text x="28" y="34" font-size="13" fill="#64748b">← Volver</text>
+  <text x="110" y="34" font-size="15" font-weight="600" fill="#0f172a">Encuesta de Satisfacción</text>
+  <rect x="310" y="18" width="70" height="22" rx="11" fill="#dcfce7"/>
+  <text x="322" y="33" font-size="11" font-weight="600" fill="#15803d">Publicado</text>
+  <rect x="630" y="14" width="96" height="28" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="646" y="32" font-size="12" fill="#334155">Vista previa</text>
+  <rect x="736" y="14" width="90" height="28" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="756" y="32" font-size="12" fill="#334155">Guardar</text>
+  <rect x="836" y="14" width="96" height="28" rx="6" fill="#2563eb"/>
+  <text x="854" y="32" font-size="12" font-weight="600" fill="#ffffff">Compartir link</text>
+
+  <!-- Left Panel: Question List -->
+  <rect x="28" y="76" width="276" height="436" rx="10" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="46" y="104" font-size="13" font-weight="600" fill="#0f172a">Preguntas del formulario</text>
+
+  <rect x="44" y="120" width="244" height="54" rx="8" fill="#eff6ff" stroke="#3b82f6"/>
+  <text x="58" y="142" font-size="12" font-weight="600" fill="#1e3a8a">1. Nombre completo</text>
+  <text x="58" y="160" font-size="11" fill="#3b82f6">Texto corto · Reutilizable</text>
+
+  <rect x="44" y="184" width="244" height="54" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="58" y="206" font-size="12" font-weight="600" fill="#0f172a">2. Correo electrónico</text>
+  <text x="58" y="224" font-size="11" fill="#64748b">Correo · Segmento Contacto</text>
+
+  <rect x="44" y="248" width="244" height="54" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="58" y="270" font-size="12" font-weight="600" fill="#0f172a">3. Calificá la atención</text>
+  <text x="58" y="288" font-size="11" fill="#64748b">Calificación (1-5) · Obligatoria</text>
+
+  <rect x="44" y="454" width="244" height="38" rx="7" fill="#2563eb"/>
+  <text x="108" y="478" font-size="13" font-weight="600" fill="#ffffff">+ Agregar elemento</text>
+
+  <!-- Right Panel: Question Editor + Add Dialog Preview -->
+  <rect x="324" y="76" width="608" height="236" rx="10" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="346" y="106" font-size="14" font-weight="600" fill="#0f172a">Configuración de pregunta #1</text>
+  <text x="346" y="132" font-size="12" font-weight="500" fill="#475569">Título de la pregunta</text>
+  <rect x="346" y="140" width="564" height="34" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="358" y="161" font-size="13" fill="#0f172a">Nombre completo</text>
+
+  <text x="346" y="196" font-size="12" font-weight="500" fill="#475569">Descripción / ayuda (opcional)</text>
+  <rect x="346" y="204" width="564" height="34" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="358" y="225" font-size="12" fill="#94a3b8">Ingresá tu nombre y apellido tal como figura en tu documento</text>
+
+  <rect x="346" y="256" width="40" height="22" rx="11" fill="#2563eb"/>
+  <circle cx="375" cy="267" r="8" fill="#ffffff"/>
+  <text x="396" y="271" font-size="12" font-weight="500" fill="#334155">Pregunta obligatoria</text>
+
+  <!-- Bottom Right: Add Element Modal Preview -->
+  <rect x="324" y="328" width="608" height="184" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="346" y="356" font-size="14" font-weight="600" fill="#0f172a">Diálogo "Agregar elemento" — 3 modos disponibles</text>
+  <!-- Tab 1 -->
+  <rect x="346" y="372" width="180" height="120" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="362" y="396" font-size="13" font-weight="600" fill="#0f172a">1. Pregunta nueva</text>
+  <text x="362" y="416" font-size="11" fill="#64748b">Elegí entre 14 tipos:</text>
+  <text x="362" y="434" font-size="11" fill="#475569">• Texto corto / largo</text>
+  <text x="362" y="450" font-size="11" fill="#475569">• Lista, Casillas, Sí/No</text>
+  <text x="362" y="466" font-size="11" fill="#475569">• Calificación, Archivo, URL</text>
+  <!-- Tab 2 -->
+  <rect x="538" y="372" width="180" height="120" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="554" y="396" font-size="13" font-weight="600" fill="#1d4ed8">2. Pregunta reutilizable</text>
+  <text x="554" y="416" font-size="11" fill="#1e40af">Insertá preguntas propias</text>
+  <text x="554" y="432" font-size="11" fill="#1e40af">o compartidas contigo.</text>
+  <text x="554" y="454" font-size="11" font-weight="500" fill="#2563eb">✓ Mantiene trazabilidad</text>
+  <text x="554" y="470" font-size="11" font-weight="500" fill="#2563eb">  de respuestas por origen</text>
+  <!-- Tab 3 -->
+  <rect x="730" y="372" width="180" height="120" rx="8" fill="#f0fdf4" stroke="#bbf7d0"/>
+  <text x="746" y="396" font-size="13" font-weight="600" fill="#15803d">3. Segmento reutilizable</text>
+  <text x="746" y="416" font-size="11" fill="#166534">Insertá bloques completos</text>
+  <text x="746" y="432" font-size="11" fill="#166534">de varias preguntas juntas</text>
+  <text x="746" y="454" font-size="11" font-weight="500" fill="#15803d">✓ Mantiene trazabilidad</text>
+  <text x="746" y="470" font-size="11" font-weight="500" fill="#15803d">  del segmento y formulario</text>
+</svg>
+

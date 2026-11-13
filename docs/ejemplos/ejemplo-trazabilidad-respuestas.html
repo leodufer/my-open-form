@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ejemplo Interactivo — Trazabilidad de Preguntas y Segmentos Reutilizables</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    .banner {
+      background: #eff6ff;
+      border-bottom: 1px solid #bfdbfe;
+      padding: 10px 24px;
+      font-size: 13px;
+      color: #1e40af;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .banner a { color: #1d4ed8; font-weight: 600; text-decoration: none; }
+    .container { max-width: 1020px; margin: 28px auto; padding: 0 20px; }
+    .header { margin-bottom: 20px; }
+    .header h1 { margin: 0 0 6px; font-size: 22px; }
+    .header p { margin: 0; color: #64748b; font-size: 14px; }
+    .filters {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    select, input {
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      background: #ffffff;
+      font-size: 13px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      text-align: left;
+      background: #f1f5f9;
+      color: #475569;
+      padding: 11px 14px;
+      font-weight: 600;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: top;
+    }
+    .pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .pill-col {
+      background: #f1f5f9;
+      color: #334155;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <span><strong>Ejemplo interactivo en HTML:</strong> Vista de respuestas consolidadas con trazabilidad por formulario (/questions/[id]/responses)</span>
+    <a href="../index.html#trazabilidad">← Volver al Manual de Usuario</a>
+  </div>
+  <div class="container">
+    <div class="header">
+      <h1>Pregunta reutilizable: "¿Cómo calificarías nuestro servicio?"</h1>
+      <p>Filtrá por formulario de origen o colección para inspeccionar de dónde provino cada respuesta.</p>
+    </div>
+
+    <div class="filters">
+      <select id="formFilter" onchange="renderRows()">
+        <option value="all">Todos los formularios</option>
+        <option value="Soporte Técnico">Soporte Técnico</option>
+        <option value="Postventa">Postventa</option>
+        <option value="Eventos 2026">Eventos 2026</option>
+      </select>
+      <select id="colFilter" onchange="renderRows()">
+        <option value="all">Todas las colecciones</option>
+        <option value="General">General</option>
+        <option value="Comercial">Comercial</option>
+      </select>
+      <input type="text" id="searchInput" placeholder="Buscar en respuestas..." oninput="renderRows()" />
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Formulario de origen</th>
+            <th>Colección</th>
+            <th>Respuesta registrada</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const rows = [
+      { date: '13/11/2026 10:15', form: 'Soporte Técnico', col: 'General', answer: '5 / 5 estrellas — Excelente resolución' },
+      { date: '13/11/2026 09:42', form: 'Postventa', col: 'Comercial', answer: '4 / 5 estrellas — Muy buena atención' },
+      { date: '12/11/2026 18:10', form: 'Eventos 2026', col: 'General', answer: '5 / 5 estrellas — Todo organizado' },
+      { date: '12/11/2026 14:05', form: 'Soporte Técnico', col: 'General', answer: '4 / 5 estrellas — Respuesta rápida' }
+    ];
+
+    function renderRows() {
+      const f = document.getElementById('formFilter').value;
+      const c = document.getElementById('colFilter').value;
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = rows.filter(r =>
+        (f === 'all' || r.form === f) &&
+        (c === 'all' || r.col === c) &&
+        (r.answer.toLowerCase().includes(q) || r.form.toLowerCase().includes(q))
+      );
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = filtered.map(r => `
+        <tr>
+          <td>${r.date}</td>
+          <td><span class="pill">${r.form}</span></td>
+          <td><span class="pill pill-col">${r.col}</span></td>
+          <td>${r.answer}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="4" style="color:#64748b;text-align:center;">Sin resultados para los filtros aplicados.</td></tr>';
+    }
+    renderRows();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ejemplo Interactivo — Formulario Público OpenForm</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .banner {
+      background: #eff6ff;
+      border-bottom: 1px solid #bfdbfe;
+      padding: 10px 20px;
+      font-size: 13px;
+      color: #1e40af;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .banner a {
+      color: #1d4ed8;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .progress-wrap {
+      height: 5px;
+      background: #e2e8f0;
+      width: 100%;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #2563eb;
+      width: 33%;
+      transition: width 0.25s ease;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 620px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 32px;
+      box-shadow: 0 10px 25px -10px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #2563eb;
+      background: #eff6ff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    h1 { font-size: 22px; margin: 0 0 8px; }
+    p.desc { color: #64748b; margin: 0 0 22px; line-height: 1.5; }
+    input[type="text"], input[type="email"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-bottom: 18px;
+    }
+    .stars {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .star-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .star-btn.active {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #d97706;
+    }
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #ffffff;
+    }
+    .hidden { display: none; }
+    .summary {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <span><strong>Ejemplo interactivo en HTML:</strong> Simulación de formulario público (/f/encuesta-satisfaccion)</span>
+    <a href="../index.html#formularios">← Volver al Manual de Usuario</a>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  <main>
+    <div class="card">
+      <div id="step-1">
+        <span class="badge">Paso 1 de 3 · Texto inicial / Explicación</span>
+        <h1>Encuesta de Satisfacción 2026</h1>
+        <p class="desc">Bienvenido/a. Este breve formulario de ejemplo muestra cómo los encuestados responden paso a paso desde el enlace público.</p>
+        <div class="actions">
+          <span></span>
+          <button class="btn btn-primary" onclick="goStep(2)">Aceptar y comenzar →</button>
+        </div>
+      </div>
+
+      <div id="step-2" class="hidden">
+        <span class="badge">Paso 2 de 3 · Pregunta reutilizable (Obligatoria)</span>
+        <h1>¿Cuál es tu nombre completo? *</h1>
+        <p class="desc">Esta pregunta proviene de la biblioteca reutilizable y conserva su trazabilidad hacia este formulario.</p>
+        <input type="text" id="nameInput" placeholder="Ej.: Lucía Fernández" />
+        <div class="actions">
+          <button class="btn" onclick="goStep(1)">← Anterior</button>
+          <button class="btn btn-primary" onclick="nextFromName()">Siguiente →</button>
+        </div>
+      </div>
+
+      <div id="step-3" class="hidden">
+        <span class="badge">Paso 3 de 3 · Calificación (1-5)</span>
+        <h1>¿Cómo calificarías la atención recibida?</h1>
+        <p class="desc">Seleccioná una puntuación de 1 a 5 estrellas.</p>
+        <div class="stars" id="stars">
+          <button class="star-btn" onclick="setRating(1)">★</button>
+          <button class="star-btn" onclick="setRating(2)">★</button>
+          <button class="star-btn" onclick="setRating(3)">★</button>
+          <button class="star-btn" onclick="setRating(4)">★</button>
+          <button class="star-btn" onclick="setRating(5)">★</button>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="goStep(2)">← Anterior</button>
+          <button class="btn btn-primary" onclick="submitDemo()">Enviar respuesta</button>
+        </div>
+      </div>
+
+      <div id="step-done" class="hidden">
+        <span class="badge">¡Envío simulado completado!</span>
+        <h1>¡Muchas gracias por tu respuesta!</h1>
+        <p class="desc">En la aplicación real, los datos se almacenan en la tabla de respuestas y quedan visibles tanto en el formulario como en el panel de preguntas/segmentos reutilizables.</p>
+        <div class="summary" id="summaryBox"></div>
+        <button class="btn btn-primary" onclick="resetDemo()">Reiniciar ejemplo</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let selectedRating = 0;
+    function goStep(step) {
+      ['step-1', 'step-2', 'step-3', 'step-done'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById('step-' + step).classList.remove('hidden');
+      const pct = step === 1 ? 33 : step === 2 ? 66 : 100;
+      document.getElementById('progressBar').style.width = pct + '%';
+    }
+    function nextFromName() {
+      const val = document.getElementById('nameInput').value.trim();
+      if (!val) {
+        alert('Esta pregunta es obligatoria. Ingresá un nombre de ejemplo.');
+        return;
+      }
+      goStep(3);
+    }
+    function setRating(n) {
+      selectedRating = n;
+      document.querySelectorAll('.star-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx < n);
+      });
+    }
+    function submitDemo() {
+      const name = document.getElementById('nameInput').value.trim() || 'Sin especificar';
+      document.getElementById('summaryBox').innerHTML =
+        '<strong>Nombre completo:</strong> ' + name + '<br>' +
+        '<strong>Calificación:</strong> ' + (selectedRating ? selectedRating + ' / 5 estrellas' : 'Sin calificar') + '<br>' +
+        '<strong>Formulario de origen:</strong> Encuesta de Satisfacción 2026';
+      goStep('done');
+    }
+    function resetDemo() {
+      document.getElementById('nameInput').value = '';
+      setRating(0);
+      goStep(1);
+    }
+  </script>
+</body>
+</html>
+
