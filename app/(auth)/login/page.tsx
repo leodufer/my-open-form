@@ -1,19 +1,24 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Logo } from '@/components/ui/logo'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 import { Loader2, Mail } from 'lucide-react'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
-  const [loadingMethod, setLoadingMethod] = useState<'google' | 'email' | null>(null)
+  const [password, setPassword] = useState('')
+  const [authTab, setAuthTab] = useState<'password' | 'magic'>('password')
+  const [loadingMethod, setLoadingMethod] = useState<'google' | 'email' | 'password' | null>(null)
   const isLoading = loadingMethod !== null
   const [emailSent, setEmailSent] = useState(false)
   const supabase = createClient()
@@ -53,6 +58,28 @@ export default function LoginPage() {
       setEmailSent(true)
     }
     setLoadingMethod(null)
+  }
+
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || !password) {
+      toast.error('Ingresá tu correo electrónico y contraseña')
+      return
+    }
+
+    setLoadingMethod('password')
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    })
+
+    if (error) {
+      toast.error('Correo o contraseña incorrectos')
+      setLoadingMethod(null)
+    } else {
+      router.push('/dashboard')
+      router.refresh()
+    }
   }
 
   if (emailSent) {
@@ -139,39 +166,95 @@ export default function LoginPage() {
             </span>
           </div>
 
-          <form onSubmit={handleMagicLink} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-700">Correo electrónico</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="tu@ejemplo.com"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-                className="h-11 border-slate-200"
-              />
-            </div>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-11 text-sm font-medium bg-blue-600 hover:bg-blue-700 shadow-sm"
-            >
-              {loadingMethod === 'email' ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Enviando enlace...
-                </>
-              ) : (
-                'Continuar con correo'
-              )}
-            </Button>
-          </form>
+          <Tabs value={authTab} onValueChange={(v) => setAuthTab(v as 'password' | 'magic')}>
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="password">Contraseña</TabsTrigger>
+              <TabsTrigger value="magic">Enlace mágico</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="password">
+              <form onSubmit={handlePasswordLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="login-email" className="text-slate-700">Correo electrónico</Label>
+                  <Input
+                    id="login-email"
+                    type="email"
+                    placeholder="tu@ejemplo.com"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isLoading}
+                    className="h-11 border-slate-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="login-password" className="text-slate-700">Contraseña</Label>
+                  <Input
+                    id="login-password"
+                    type="password"
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                    className="h-11 border-slate-200"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-11 text-sm font-medium bg-blue-600 hover:bg-blue-700 shadow-sm"
+                >
+                  {loadingMethod === 'password' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Ingresando...
+                    </>
+                  ) : (
+                    'Iniciar sesión'
+                  )}
+                </Button>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="magic">
+              <form onSubmit={handleMagicLink} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-slate-700">Correo electrónico</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="tu@ejemplo.com"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isLoading}
+                    className="h-11 border-slate-200"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-11 text-sm font-medium bg-blue-600 hover:bg-blue-700 shadow-sm"
+                >
+                  {loadingMethod === 'email' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Enviando enlace...
+                    </>
+                  ) : (
+                    'Continuar con correo'
+                  )}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-500">
-          Te enviaremos un enlace mágico por correo para ingresar sin contraseña.
+          {authTab === 'password'
+            ? 'Ingresá con el correo y contraseña asignados a tu cuenta.'
+            : 'Te enviaremos un enlace mágico por correo para ingresar sin contraseña.'}
         </p>
       </motion.div>
     </div>

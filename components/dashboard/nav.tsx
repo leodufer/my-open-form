@@ -14,14 +14,15 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { User } from '@supabase/supabase-js'
-import { Bookmark, Layers, LogOut, Plus, Settings, User as UserIcon } from 'lucide-react'
+import { Bookmark, Layers, LogOut, Plus, Settings, User as UserIcon, Users } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface DashboardNavProps {
   user: User
+  isAdmin?: boolean
 }
 
-export function DashboardNav({ user }: DashboardNavProps) {
+export function DashboardNav({ user, isAdmin = false }: DashboardNavProps) {
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClient()
@@ -49,6 +50,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
               { href: '/dashboard', label: 'Mis formularios' },
               { href: '/questions', label: 'Preguntas' },
               { href: '/segments', label: 'Segmentos' },
+              ...(isAdmin ? [{ href: '/users', label: 'Usuarios' }] : []),
               { href: '/settings', label: 'Configuración' },
             ].map((item) => (
               <Link
@@ -114,6 +116,14 @@ export function DashboardNav({ user }: DashboardNavProps) {
                   Segmentos reutilizables
                 </Link>
               </DropdownMenuItem>
+              {isAdmin && (
+                <DropdownMenuItem asChild>
+                  <Link href="/users" className="cursor-pointer">
+                    <Users className="mr-2 h-4 w-4" />
+                    Gestión de usuarios
+                  </Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem asChild>
                 <Link href="/settings" className="cursor-pointer">
                   <Settings className="mr-2 h-4 w-4" />

@@ -14,6 +14,7 @@ CREATE TABLE profiles (
   email TEXT NOT NULL,
   full_name TEXT,
   avatar_url TEXT,
+  role TEXT DEFAULT 'user' NOT NULL CHECK (role IN ('admin', 'user')),
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
@@ -232,7 +233,7 @@ CREATE POLICY "Anyone can submit responses to published forms"
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, full_name, avatar_url)
+  INSERT INTO public.profiles (id, email, full_name, avatar_url, role)
   VALUES (
     NEW.id,
     COALESCE(NEW.email, ''),
@@ -245,12 +246,14 @@ BEGIN
       NEW.raw_user_meta_data->>'avatar_url',
       NEW.raw_user_meta_data->>'picture',
       ''
-    )
+    ),
+    CASE WHEN LOWER(COALESCE(NEW.email, '')) = 'leodufer@gmail.com' THEN 'admin' ELSE 'user' END
   )
   ON CONFLICT (id) DO UPDATE SET
     email = EXCLUDED.email,
     full_name = COALESCE(NULLIF(EXCLUDED.full_name, ''), profiles.full_name),
     avatar_url = COALESCE(NULLIF(EXCLUDED.avatar_url, ''), profiles.avatar_url),
+    role = CASE WHEN LOWER(EXCLUDED.email) = 'leodufer@gmail.com' THEN 'admin' ELSE profiles.role END,
     updated_at = NOW();
 
   INSERT INTO public.collections (user_id, name)
