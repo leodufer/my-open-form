@@ -31,11 +31,11 @@ services:
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
-      API_EXTERNAL_URL: ${SUPABASE_PUBLIC_URL:-http://45.236.244.196:54321}
+      API_EXTERNAL_URL: ${SUPABASE_PUBLIC_URL:-http://ubuntu-lab.netbird.cloud:54321}
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD:-your-super-secret-and-long-postgres-password}@supabase-db:5432/postgres
-      GOTRUE_SITE_URL: ${APP_PUBLIC_URL:-https://openform.facitec.edu.py}
-      GOTRUE_URI_ALLOW_LIST: ${GOTRUE_URI_ALLOW_LIST:-https://openform.facitec.edu.py/**,http://45.236.244.196:3001/**,http://ubuntu-lab.netbird.cloud:3001/**}
+      GOTRUE_SITE_URL: ${APP_PUBLIC_URL:-http://ubuntu-lab.netbird.cloud:3001}
+      GOTRUE_URI_ALLOW_LIST: ${GOTRUE_URI_ALLOW_LIST:-http://ubuntu-lab.netbird.cloud:3001/**}
       GOTRUE_DISABLE_SIGNUP: "false"
       GOTRUE_JWT_ADMIN_ROLES: service_role
       GOTRUE_JWT_AUD: authenticated
@@ -92,7 +92,6 @@ services:
       PGPASSWORD: ${POSTGRES_PASSWORD:-your-super-secret-and-long-postgres-password}
     volumes:
       - ./schema.sql:/schema.sql:ro
-      - ./seed-admin.sql:/seed-admin.sql:ro
     entrypoint:
       - /bin/sh
       - -c
@@ -106,8 +105,39 @@ services:
           psql -h supabase-db -U postgres -d postgres -v ON_ERROR_STOP=1 -f /schema.sql
           echo "Schema applied successfully."
         fi
-        echo "Ensuring default admin user exists..."
-        psql -h supabase-db -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -f /seed-admin.sql
+
+  supabase-seed:
+    image: curlimages/curl:8.11.1
+    depends_on:
+      supabase-kong:
+        condition: service_started
+      supabase-auth:
+        condition: service_started
+    environment:
+      SERVICE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU}
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        echo "Waiting for supabase-kong + supabase-auth..."
+        for i in $$(seq 1 30); do
+          if curl -sf http://supabase-kong:8000/auth/v1/health >/dev/null 2>&1; then
+            break
+          fi
+          sleep 2
+        done
+        status=$$(curl -s -o /tmp/seed-resp.json -w "%{http_code}" \
+          -X POST "http://supabase-kong:8000/auth/v1/admin/users" \
+          -H "apikey: $$SERVICE_KEY" \
+          -H "Authorization: Bearer $$SERVICE_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{"email":"leodufer@gmail.com","password":"adminadmin","email_confirm":true}')
+        echo "Seed response HTTP $$status: $$(cat /tmp/seed-resp.json)"
+        if [ "$$status" = "200" ] || [ "$$status" = "201" ] || [ "$$status" = "422" ]; then
+          exit 0
+        fi
+        exit 1
 
   openform:
     image: ${OPENFORM_IMAGE:-ghcr.io/leodufer/my-open-form:latest}
@@ -119,7 +149,7 @@ services:
     ports:
       - "3001:3000"
     environment:
-      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://45.236.244.196:54321}
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://ubuntu-lab.netbird.cloud:54321}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0}
       SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU}
       SUPABASE_INTERNAL_URL: http://supabase-kong:8000
