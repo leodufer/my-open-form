@@ -1,0 +1,129 @@
+services:
+  supabase-db:
+    image: supabase/postgres:15.8.1.060
+    ports:
+      - "127.0.0.1:54322:5432"
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your-super-secret-and-long-postgres-password}
+      POSTGRES_DB: postgres
+      JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters-long}
+      JWT_EXP: 3600
+    volumes:
+      - supabase_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+
+  supabase-mail:
+    image: axllent/mailpit:latest
+    ports:
+      - "127.0.0.1:54324:8025"
+    restart: unless-stopped
+
+  supabase-auth:
+    image: supabase/gotrue:v2.167.0
+    depends_on:
+      supabase-init:
+        condition: service_completed_successfully
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: ${SUPABASE_PUBLIC_URL:-http://45.236.244.196:54321}
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD:-your-super-secret-and-long-postgres-password}@supabase-db:5432/postgres
+      GOTRUE_SITE_URL: ${APP_PUBLIC_URL:-https://openform.facitec.edu.py}
+      GOTRUE_URI_ALLOW_LIST: ${GOTRUE_URI_ALLOW_LIST:-https://openform.facitec.edu.py/**,http://45.236.244.196:3001/**,http://ubuntu-lab.netbird.cloud:3001/**}
+      GOTRUE_DISABLE_SIGNUP: "false"
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters-long}
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "false"
+      GOTRUE_SMTP_MAX_FREQUENCY: 1s
+      GOTRUE_SMTP_HOST: supabase-mail
+      GOTRUE_SMTP_PORT: 1025
+      GOTRUE_SMTP_ADMIN_EMAIL: admin@openform.local
+      GOTRUE_MAILER_URLPATHS_INVITE: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_RECOVERY: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: /auth/v1/verify
+    restart: unless-stopped
+
+  supabase-rest:
+    image: postgrest/postgrest:v12.2.3
+    depends_on:
+      supabase-init:
+        condition: service_completed_successfully
+    environment:
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD:-your-super-secret-and-long-postgres-password}@supabase-db:5432/postgres
+      PGRST_DB_SCHEMAS: public,storage,graphql_public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters-long}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+    restart: unless-stopped
+
+  supabase-kong:
+    image: kong:2.8.1
+    depends_on:
+      - supabase-auth
+      - supabase-rest
+    ports:
+      - "54321:8000"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl
+    volumes:
+      - ./kong.yml:/var/lib/kong/kong.yml:ro
+    restart: unless-stopped
+
+  supabase-init:
+    image: postgres:15-alpine
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-your-super-secret-and-long-postgres-password}
+    volumes:
+      - ./schema.sql:/schema.sql:ro
+      - ./seed-admin.sql:/seed-admin.sql:ro
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        psql -h supabase-db -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -c "ALTER USER supabase_auth_admin WITH PASSWORD '${POSTGRES_PASSWORD:-your-super-secret-and-long-postgres-password}'; ALTER USER authenticator WITH PASSWORD '${POSTGRES_PASSWORD:-your-super-secret-and-long-postgres-password}';"
+        if psql -h supabase-db -U postgres -d postgres -tAc "SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='profiles'" | grep -q 1; then
+          echo "OpenForm schema already initialized."
+        else
+          echo "Applying schema.sql..."
+          psql -h supabase-db -U postgres -d postgres -v ON_ERROR_STOP=1 -f /schema.sql
+          echo "Schema applied successfully."
+        fi
+        echo "Ensuring default admin user exists..."
+        psql -h supabase-db -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -f /seed-admin.sql
+
+  openform:
+    image: ${OPENFORM_IMAGE:-ghcr.io/leodufer/my-open-form:latest}
+    depends_on:
+      supabase-kong:
+        condition: service_started
+      supabase-init:
+        condition: service_completed_successfully
+    ports:
+      - "3001:3000"
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://45.236.244.196:54321}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU}
+      SUPABASE_INTERNAL_URL: http://supabase-kong:8000
+    restart: unless-stopped
+
+volumes:
+  supabase_db_data:

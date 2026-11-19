@@ -1,0 +1,442 @@
+-- OpenForm Database Schema
+-- Run this in your Supabase SQL Editor
+
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Create enum types
+CREATE TYPE form_status AS ENUM ('draft', 'published', 'closed');
+CREATE TYPE theme_preset AS ENUM ('midnight', 'ocean', 'sunset', 'forest', 'lavender', 'minimal');
+
+-- Profiles table (extends Supabase auth.users)
+CREATE TABLE profiles (
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  email TEXT NOT NULL,
+  full_name TEXT,
+  avatar_url TEXT,
+  role TEXT DEFAULT 'user' NOT NULL CHECK (role IN ('admin', 'user')),
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- Collections table
+CREATE TABLE collections (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+
+  UNIQUE(user_id, name)
+);
+
+CREATE INDEX idx_collections_user_id ON collections(user_id);
+
+-- Reusable questions table
+CREATE TABLE reusable_questions (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  type TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  required BOOLEAN DEFAULT FALSE NOT NULL,
+  config JSONB DEFAULT '{}'::jsonb NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+CREATE INDEX idx_reusable_questions_user_id ON reusable_questions(user_id);
+
+-- Question segments table (reusable groups of questions)
+CREATE TABLE question_segments (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  questions JSONB DEFAULT '[]'::jsonb NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+CREATE INDEX idx_question_segments_user_id ON question_segments(user_id);
+
+-- Resource shares table (share forms, reusable questions, and question segments with other users)
+CREATE TABLE resource_shares (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  resource_type TEXT NOT NULL CHECK (resource_type IN ('form', 'reusable_question', 'question_segment')),
+  resource_id UUID NOT NULL,
+  owner_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  shared_with_user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  permission TEXT NOT NULL DEFAULT 'edit' CHECK (permission IN ('view', 'edit')),
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+
+  UNIQUE(resource_type, resource_id, shared_with_user_id)
+);
+
+CREATE INDEX idx_resource_shares_resource ON resource_shares(resource_type, resource_id);
+CREATE INDEX idx_resource_shares_shared_with ON resource_shares(shared_with_user_id);
+CREATE INDEX idx_resource_shares_owner ON resource_shares(owner_id);
+
+-- Forms table
+CREATE TABLE forms (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  collection_id UUID REFERENCES collections(id) ON DELETE SET NULL,
+  title TEXT NOT NULL DEFAULT 'Untitled Form',
+  description TEXT,
+  slug TEXT NOT NULL,
+  status form_status DEFAULT 'draft' NOT NULL,
+  theme theme_preset DEFAULT 'minimal' NOT NULL,
+  questions JSONB DEFAULT '[]'::jsonb NOT NULL,
+  thank_you_message TEXT DEFAULT 'Thank you for your response!' NOT NULL,
+  allow_multiple_submissions BOOLEAN DEFAULT FALSE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  
+  -- Ensure slug is unique per user
+  UNIQUE(user_id, slug)
+);
+
+-- Create index for faster slug lookups
+CREATE INDEX idx_forms_slug ON forms(slug);
+CREATE INDEX idx_forms_user_id ON forms(user_id);
+CREATE INDEX idx_forms_status ON forms(status);
+CREATE INDEX idx_forms_collection_id ON forms(collection_id);
+
+-- Responses table
+CREATE TABLE responses (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  form_id UUID REFERENCES forms(id) ON DELETE CASCADE NOT NULL,
+  answers JSONB NOT NULL DEFAULT '{}'::jsonb,
+  submitted_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- Create index for faster response lookups
+CREATE INDEX idx_responses_form_id ON responses(form_id);
+CREATE INDEX idx_responses_submitted_at ON responses(submitted_at DESC);
+
+-- Row Level Security (RLS) Policies
+
+-- Enable RLS
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE collections ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reusable_questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE question_segments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE resource_shares ENABLE ROW LEVEL SECURITY;
+ALTER TABLE forms ENABLE ROW LEVEL SECURITY;
+ALTER TABLE responses ENABLE ROW LEVEL SECURITY;
+
+-- Collections policies
+CREATE POLICY "Users can view their own collections"
+  ON collections FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own collections"
+  ON collections FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own collections"
+  ON collections FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own collections"
+  ON collections FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Reusable questions policies
+CREATE POLICY "Users can view their own reusable questions"
+  ON reusable_questions FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own reusable questions"
+  ON reusable_questions FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own reusable questions"
+  ON reusable_questions FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own reusable questions"
+  ON reusable_questions FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Question segments policies
+CREATE POLICY "Users can view their own question segments"
+  ON question_segments FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own question segments"
+  ON question_segments FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own question segments"
+  ON question_segments FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own question segments"
+  ON question_segments FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Shared access policies for reusable questions and segments
+CREATE POLICY "Users can view shared reusable questions"
+  ON reusable_questions FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM resource_shares rs
+      WHERE rs.resource_type = 'reusable_question'
+      AND rs.resource_id = reusable_questions.id
+      AND rs.shared_with_user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update shared reusable questions with edit permission"
+  ON reusable_questions FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM resource_shares rs
+      WHERE rs.resource_type = 'reusable_question'
+      AND rs.resource_id = reusable_questions.id
+      AND rs.shared_with_user_id = auth.uid()
+      AND rs.permission = 'edit'
+    )
+  );
+
+CREATE POLICY "Users can view shared question segments"
+  ON question_segments FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM resource_shares rs
+      WHERE rs.resource_type = 'question_segment'
+      AND rs.resource_id = question_segments.id
+      AND rs.shared_with_user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update shared question segments with edit permission"
+  ON question_segments FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM resource_shares rs
+      WHERE rs.resource_type = 'question_segment'
+      AND rs.resource_id = question_segments.id
+      AND rs.shared_with_user_id = auth.uid()
+      AND rs.permission = 'edit'
+    )
+  );
+
+-- Resource shares policies
+CREATE POLICY "Users can view shares they own or received"
+  ON resource_shares FOR SELECT
+  USING (auth.uid() = owner_id OR auth.uid() = shared_with_user_id);
+
+CREATE POLICY "Owners can create shares"
+  ON resource_shares FOR INSERT
+  WITH CHECK (auth.uid() = owner_id);
+
+CREATE POLICY "Owners can update shares"
+  ON resource_shares FOR UPDATE
+  USING (auth.uid() = owner_id);
+
+CREATE POLICY "Owners or recipients can delete shares"
+  ON resource_shares FOR DELETE
+  USING (auth.uid() = owner_id OR auth.uid() = shared_with_user_id);
+
+-- Profiles policies
+CREATE POLICY "Users can view their own profile"
+  ON profiles FOR SELECT
+  USING (auth.uid() = id);
+
+CREATE POLICY "Users can update their own profile"
+  ON profiles FOR UPDATE
+  USING (auth.uid() = id);
+
+CREATE POLICY "Users can insert their own profile"
+  ON profiles FOR INSERT
+  WITH CHECK (auth.uid() = id);
+
+-- Forms policies
+CREATE POLICY "Users can view their own forms"
+  ON forms FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own forms"
+  ON forms FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own forms"
+  ON forms FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own forms"
+  ON forms FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Public can view published forms (for form submissions)
+CREATE POLICY "Anyone can view published forms"
+  ON forms FOR SELECT
+  USING (status = 'published');
+
+-- Shared forms policies
+CREATE POLICY "Users can view shared forms"
+  ON forms FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM resource_shares rs
+      WHERE rs.resource_type = 'form'
+      AND rs.resource_id = forms.id
+      AND rs.shared_with_user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update shared forms with edit permission"
+  ON forms FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM resource_shares rs
+      WHERE rs.resource_type = 'form'
+      AND rs.resource_id = forms.id
+      AND rs.shared_with_user_id = auth.uid()
+      AND rs.permission = 'edit'
+    )
+  );
+
+-- Responses policies
+CREATE POLICY "Form owners can view responses"
+  ON responses FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM forms 
+      WHERE forms.id = responses.form_id 
+      AND (
+        forms.user_id = auth.uid()
+        OR EXISTS (
+          SELECT 1 FROM resource_shares rs
+          WHERE rs.resource_type = 'form'
+          AND rs.resource_id = forms.id
+          AND rs.shared_with_user_id = auth.uid()
+        )
+      )
+    )
+  );
+
+CREATE POLICY "Form owners can delete responses"
+  ON responses FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1 FROM forms 
+      WHERE forms.id = responses.form_id 
+      AND (
+        forms.user_id = auth.uid()
+        OR EXISTS (
+          SELECT 1 FROM resource_shares rs
+          WHERE rs.resource_type = 'form'
+          AND rs.resource_id = forms.id
+          AND rs.shared_with_user_id = auth.uid()
+          AND rs.permission = 'edit'
+        )
+      )
+    )
+  );
+
+-- Anyone can submit responses to published forms
+CREATE POLICY "Anyone can submit responses to published forms"
+  ON responses FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM forms 
+      WHERE forms.id = form_id 
+      AND forms.status = 'published'
+    )
+  );
+
+-- Functions and Triggers
+
+-- Function to handle new user signup
+-- Handles both Google OAuth (uses 'name', 'picture') and email signups (uses 'full_name', 'avatar_url')
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, full_name, avatar_url, role)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.email, ''),
+    COALESCE(
+      NEW.raw_user_meta_data->>'full_name',
+      NEW.raw_user_meta_data->>'name',
+      ''
+    ),
+    COALESCE(
+      NEW.raw_user_meta_data->>'avatar_url',
+      NEW.raw_user_meta_data->>'picture',
+      ''
+    ),
+    CASE WHEN LOWER(COALESCE(NEW.email, '')) = 'leodufer@gmail.com' THEN 'admin' ELSE 'user' END
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    full_name = COALESCE(NULLIF(EXCLUDED.full_name, ''), profiles.full_name),
+    avatar_url = COALESCE(NULLIF(EXCLUDED.avatar_url, ''), profiles.avatar_url),
+    role = CASE WHEN LOWER(EXCLUDED.email) = 'leodufer@gmail.com' THEN 'admin' ELSE profiles.role END,
+    updated_at = NOW();
+
+  INSERT INTO public.collections (user_id, name)
+  VALUES (NEW.id, 'General')
+  ON CONFLICT (user_id, name) DO NOTHING;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to auto-create profile on signup
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- Function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Triggers for updated_at
+CREATE TRIGGER update_profiles_updated_at
+  BEFORE UPDATE ON profiles
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_collections_updated_at
+  BEFORE UPDATE ON collections
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_reusable_questions_updated_at
+  BEFORE UPDATE ON reusable_questions
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_question_segments_updated_at
+  BEFORE UPDATE ON question_segments
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_forms_updated_at
+  BEFORE UPDATE ON forms
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- Function to generate unique slug
+CREATE OR REPLACE FUNCTION generate_unique_slug(base_slug TEXT, uid UUID)
+RETURNS TEXT AS $$
+DECLARE
+  final_slug TEXT;
+  counter INTEGER := 0;
+BEGIN
+  final_slug := base_slug;
+  
+  WHILE EXISTS (SELECT 1 FROM forms WHERE slug = final_slug AND user_id = uid) LOOP
+    counter := counter + 1;
+    final_slug := base_slug || '-' || counter;
+  END LOOP;
+  
+  RETURN final_slug;
+END;
+$$ LANGUAGE plpgsql;
+
