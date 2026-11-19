@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import { QuestionType, QuestionConfig } from './database.types'
 import { 
   Type, 
@@ -159,7 +160,7 @@ export function getQuestionTypeInfo(type: QuestionType): QuestionTypeInfo | unde
 
 export function createDefaultQuestion(type: QuestionType): QuestionConfig {
   const typeInfo = getQuestionTypeInfo(type)
-  const id = crypto.randomUUID()
+  const id = uuidv4()
   
   return {
     id,

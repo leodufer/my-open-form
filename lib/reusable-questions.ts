@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import {
   Json,
   QuestionConfig,
@@ -47,7 +48,7 @@ export function formQuestionToReusablePayload(
 export function reusableQuestionToFormQuestion(reusable: ReusableQuestion): QuestionConfig {
   const config = (reusable.config || {}) as ReusableConfig
   return {
-    id: crypto.randomUUID(),
+    id: uuidv4(),
     reusableQuestionId: reusable.id,
     type: reusable.type,
     title: reusable.title,
@@ -65,7 +66,7 @@ export function segmentToFormQuestions(segment: QuestionSegment): QuestionConfig
   const segmentQuestions = (segment.questions as QuestionConfig[]) || []
   return segmentQuestions.map((sq) => ({
     ...sq,
-    id: crypto.randomUUID(),
+    id: uuidv4(),
     segmentId: segment.id,
     segmentQuestionId: sq.id,
   }))

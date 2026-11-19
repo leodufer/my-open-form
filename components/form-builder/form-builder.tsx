@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 import { createClient } from '@/lib/supabase/client'
 import {
   Form,
@@ -260,7 +261,7 @@ export function FormBuilder({
   const duplicateQuestion = (id: string) => {
     const index = questions.findIndex(q => q.id === id)
     if (index === -1) return
-    const copy = { ...questions[index], id: crypto.randomUUID() }
+    const copy = { ...questions[index], id: uuidv4() }
     setQuestions([...questions.slice(0, index + 1), copy, ...questions.slice(index + 1)])
     setSelectedQuestionId(copy.id)
     setHasUnsavedChanges(true)
